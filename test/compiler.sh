@@ -8,10 +8,10 @@ g++ -iquote./../src/kernel/base test_register.cpp -o test_register
 
 #g++ -iquote./../src/kernel/base test_distributor.cpp -o test_distributor
 
-#g++ -iquote./../src/kernel/base test_selector.cpp -o test_selector
+g++ -iquote./../src/kernel/base test_selector.cpp -o test_selector
 
 #g++ -iquote./../src/kernel/base test_shiftor.cpp -o test_shiftor
 
 #g++ -iquote./../src/kernel test_cpu.cpp -o test_cpu
 
-#g++ -iquote./../src/kernel/base test_bits.cpp -o test_bits
+g++ -iquote./../src/kernel/base test_bits.cpp -o test_bits
