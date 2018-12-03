@@ -1,35 +1,48 @@
-#include <iostream>
 #include "shiftor.h"
 #include "bus.h"
 
-using namespace std;
-
 int main() {
-    base::BusBase _in_A_;
-    base::BusBase _in_B_;
-    base::BusBase _out_;
-    base::BusBase _control_;
-    unsigned long _ins_offset = 9;
-
-    base::ShiftorBase s(&_in_A_, &_in_B_, &_out_, &_control_, _ins_offset);
-    _in_A_._write(0b00010000);
-    _in_B_._write(0b00000011);
-
-    cout << "num_A:" << " 0b" << bitset<DATA_BITS_SIZE>(0b00010000) << endl;
-    cout << "num_A:" << " 0b" << bitset<DATA_BITS_SIZE>(0b00000011) << endl;
-
-    _control_._write(SHIFTOR_LEFT_SHIFT << _ins_offset);
+    unsigned long _data_width = 8;
+    base::BusBase _in_A_(_data_width);
+    base::BusBase _in_B_(_data_width);
+    base::BusBase _out_(_data_width);
+    base::BusBase _control_(_data_width);
+    unsigned long _ins_active_bits = 0b0011000;
+    _in_A_.named("input_bus_A");
+    _in_B_.named("input_bus_B");
+    _out_.named("output_bus");
+    _control_.named("control_bus");
+    base::ShiftorBase s(&_in_A_, &_in_B_, &_out_, &_control_, _ins_active_bits);
+    s.named("ShiftorTest");
+    
+    unsigned long _data_A1 = 0b00000001;
+    unsigned long _data_B1 = 0b11111111 & 3;
+    _in_A_.write(_data_A1);
+    _in_B_.write(_data_B1);
+    _control_.write(SHIFTOR_LEFT_SHIFT << base::_active_bits_offset(_ins_active_bits));
     s();
-    cout << "answer:" << " 0b" << bitset<DATA_BITS_SIZE>(_out_._read()) << endl;
+    s.debug();
+    _out_.debug("o---");
+    cout << "o---Except: " << "00001000" << endl;
 
-    _control_._write(SHIFTOR_RIGHT_SHIFT << _ins_offset);
+    unsigned long _data_A2 = 0b01000000;
+    unsigned long _data_B2 = 0b11111111 & 3;
+    _in_A_.write(_data_A2);
+    _in_B_.write(_data_B2);
+    _control_.write(SHIFTOR_RIGHT_SHIFT << base::_active_bits_offset(_ins_active_bits));
     s();
-    cout << "answer:" << " 0b" << bitset<DATA_BITS_SIZE>(_out_._read()) << endl;
-
-    _control_._write(SHIFTOR_NOT_ENABLE << _ins_offset);
-    _out_._write(0);
+    s.debug();
+    _out_.debug("o---");
+    cout << "o---Except: " << "00001000" << endl;
+    
+    unsigned long _data_A3 = 0b00000001;
+    unsigned long _data_B3 = 0b11111111 & 3;
+    _in_A_.write(_data_A1);
+    _in_B_.write(_data_B1);
+    _control_.write(SHIFTOR_DIRECT_TRANSMISSION << base::_active_bits_offset(_ins_active_bits));
     s();
-    cout << "answer:" << " 0b" << bitset<DATA_BITS_SIZE>(_out_._read()) << endl;
-
+    s.debug();
+    _out_.debug("o---");
+    cout << "o---Except: " << "00000001" << endl;
     return 0;
 }
