@@ -1,0 +1,78 @@
+#include <iostream>
+#include <bitset>
+#include <string>
+
+#include "bits.h"
+
+using namespace std;
+
+#ifndef __OPTIONS_H__
+#define __OPTIONS_H__
+
+/*global configure*/
+#define GLOBAL_MAX_BITS_SIZE 64
+#define DATA_BITS_SIZE 32
+
+/*mirco instruction format*/
+#define COMMON_REGISTER_0_INSTRUCTION_OFFSET 0 //2bit
+#define COMMON_REGISTER_1_INSTRUCTION_OFFSET 2 //2bit
+#define COMMON_REGISTER_2_INSTRUCTION_OFFSET 4 //2bit
+#define COMMON_REGISTER_3_INSTRUCTION_OFFSET 6 //2bit
+#define SELECTOR_A_INSTRUCTION_OFFSET 8 //4bit
+#define SELECTOR_B_INSTRUCTION_OFFSET 12 //4bit
+#define ALU_INSTRUCTION_OFFSET 16//3bit
+#define SHIFTOR_INSTRUCTION_OFFSET 19//2bit
+/*total 21bits*/
+
+/*data width*/
+#define BUS_BITS_SIZE DATA_BITS_SIZE
+#define REGISTER_BITS_SIZE DATA_BITS_SIZE
+
+/*instruction width*/
+#define REGISTER_INSTRUCTION_BITS_SIZE 2
+#define SELECTOR_INSTRUCTION_BITS_SIZE 4
+#define ALU_INSTRUCTION_BITS_SIZE 3
+#define SHIFTOR_INSTRUCTION_BITS_SIZE 2
+
+/*instruction define*/
+/*register*/
+#define REGISTER_NOT_ENABLE 0b00
+#define REGISTER_CONTAIN 0b01
+#define REGISTER_WRITE 0b10
+#define REGISTER_READ 0b11
+
+/*alu.h*/
+#define ALU_NOT_ENABLE 0b000
+#define ALU_ARITHMETIC_ADD 0b001
+#define ALU_LOGIC_AND 0b010
+#define ALU_LOGIC_OR 0b011
+#define ALU_LOGIC_NOT 0b100
+#define ALU_DIRECT_TRANSMISSION 0b101
+#define ALU_CONTAIN_1 0b110
+#define ALU_CONTAIN_2 0b111
+
+/*selector.h*/
+#define SELECTOR_NOT_ENABLE 0b0000
+#define SELECTOR_CONTAIN_0 0b0001
+#define SELECTOR_CONTAIN_1 0b0010
+#define SELECTOR_CONTAIN_2 0b0011
+#define SELECTOR_CONTAIN_3 0b0100
+#define SELECTOR_CONTAIN_4 0b0101
+#define SELECTOR_CONTAIN_5 0b0110
+#define SELECTOR_CONTAIN_6 0b0111
+#define SELECTOR_ROUTE_0 0b1000
+#define SELECTOR_ROUTE_1 0b1001
+#define SELECTOR_ROUTE_2 0b1010
+#define SELECTOR_ROUTE_3 0b1011
+#define SELECTOR_ROUTE_4 0b1100
+#define SELECTOR_ROUTE_5 0b1101
+#define SELECTOR_ROUTE_6 0b1110
+#define SELECTOR_ROUTE_7 0b1111
+
+/*shiftor.h*/
+#define SHIFTOR_NOT_ENABLE 0b00
+#define SHIFTOR_LEFT_SHIFT 0b01
+#define SHIFTOR_RIGHT_SHIFT 0b10
+#define SHIFTOR_DIRECT_TRANSMISSION 0b11
+
+#endif
