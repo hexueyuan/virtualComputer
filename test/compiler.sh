@@ -12,6 +12,8 @@
 
 #g++ -iquote./../src/kernel/base test_shiftor.cpp -o test_shiftor
 
-g++ -iquote./../src/kernel test_cpu.cpp -o test_cpu
+#g++ -iquote./../src/kernel test_cpu.cpp -o test_cpu
 
 #g++ -iquote./../src/kernel/base test_bits.cpp -o test_bits
+
+g++ -iquote./../src/kernel test_memory.cpp -o test_memory
