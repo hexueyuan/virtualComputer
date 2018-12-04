@@ -10,7 +10,15 @@ using namespace std;
 
 /*global configure*/
 #define GLOBAL_MAX_BITS_SIZE 64
-#define DATA_BITS_SIZE 32
+#define DATA_BITS_SIZE 8            //数据位宽
+#define CONTROL_BUS_BITS_WIDTH 13   //控制总线宽度
+#define CPU_INSIDE_BUS_BITS_WIDTH DATA_BITS_SIZE   //CPU内总线位宽度
+
+/*active bits configure*/
+#define SELECTOR_A_INSTRUCTION_ACTIVE_BITS      0b1111000000000 //选择器A有效位
+#define SELECTOR_B_INSTRUCTION_ACTIVE_BITS      0b0000111100000 //选择器B有效位
+#define ALU_INSTRUCTION_ACTIVE_BITS             0b0000000011100 //ALU有效位
+#define SHIFTOR_INSTRUCTION_ACTIVE_BITS         0b0000000000011 //移位器有效位
 
 /*mirco instruction format*/
 #define COMMON_REGISTER_0_INSTRUCTION_OFFSET 0 //2bit

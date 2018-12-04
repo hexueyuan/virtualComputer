@@ -40,6 +40,15 @@ namespace base {
         return (_global_ins & _active_bits) >> _active_bits_offset(_active_bits);
     }
 
+    //desc: 生成指令二进制
+    //in: _ins(unsigned long) 指令
+    //  _active_bits(unsigned long) 有效比特位
+    //out: _active_ins(unsigned long) 有效指令
+    //example: func(0b101, 0b00011100)=0b00010100
+    unsigned long _generate_instruction(unsigned long _ins, unsigned long _active_bits) {
+        return (_ins << _active_bits_offset(_active_bits)) & _active_bits;
+    }
+
     //比特值转字符串
     //in: _num(unsigned long) 转换的值，bits(unsigned long)位长, 不超过64
     //out: _str(string) 字符串格式二进制
