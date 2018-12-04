@@ -41,7 +41,7 @@ namespace base {
     BusBase::~BusBase() {}
 
     void BusBase::write(unsigned long _data_) {
-        _bus_data_ = _data_;
+        _bus_data_ = _data_ & ((1 << _bus_width_) - 1);
     }
 
     unsigned long BusBase::read() {
@@ -49,7 +49,7 @@ namespace base {
     }
 
     void BusBase::debug(string tab = "") {
-        cout << tab << "Bus(" + _bus_name_ + ") data: " << "0b" << _bin_str(_bus_data_, _bus_width_) << endl;
+        cout << tab << "Bus(" + _bus_name_ + ") data: " << _bin_str(_bus_data_, _bus_width_) << endl;
     }
 
     void BusBase::named(string _name_) {
