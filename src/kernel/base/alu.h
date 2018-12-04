@@ -6,17 +6,30 @@
 #ifndef __ALU_H__
 #define __ALU_H__
 
+//ALU机器计算部件
+//执行逻辑运算和加法运算
+//指令长3位
 namespace base {
-
     class AluBase {
         public:
+            //构造函数
+            //输入：_in_A_ 输入总线A
+            //      _in_B_ 输入总线B
+            //      _out_A_ 输出总线A
+            //      _out_B_ 输出总线B
+            //      _control_ 控制总线
+            //      _ins_active_bits_ 指令有效位
+            //ALU与selector串联，数据经选择器连接到ALU，再连接到selector，因为selector由双输入，所以这里ALU双输出
             AluBase(BusBase* _in_A_, BusBase* _in_B_, BusBase* _out_A_, BusBase* _out_B_, 
                     BusBase* _control_, unsigned long _ins_active_bits_);
             ~AluBase();
 
+            //执行当前控制总线上的一条指令
             void operator()();
-            void _debug();
-            void _named(string _name_);
+            //调试
+            void debug(string prefix = "");
+            //命名
+            void named(string _name_);
 
         private:
             BusBase* _input_bus_A_;
@@ -29,10 +42,15 @@ namespace base {
             unsigned long _instruction_active_bits_;
             string _alu_name_;
 
+            //算术加法
             void _ARITHMETIC_ADD();
+            //逻辑与
             void _LOGIC_AND();
+            //逻辑或
             void _LOGIC_OR();
+            //逻辑非
             void _LOGIC_NOT();
+            //直传
             void _DIRECT_TRANSMISSION();
     };
 
@@ -74,13 +92,19 @@ namespace base {
         }
     }
 
-    void AluBase::_named(string _name_) {
+    void AluBase::named(string _name_) {
         _alu_name_ = _name_;
     }
 
-    void AluBase::_debug() {
-        cout << "ALU " + _alu_name_ + " instruction: " << 
+    void AluBase::debug(string prefix) {
+        string space(prefix.length(), ' '); 
+        cout << prefix << "ALU(" << _alu_name_ << ") instruction: " << 
             _bin_str(_instruction_, _active_bits_size(_instruction_active_bits_)) << endl;
+        cout << space << "ALU(" << _alu_name_ << ") input_bus_A: " << _input_bus_A_ -> name() << endl;
+        cout << space << "ALU(" << _alu_name_ << ") input_bus_B: " << _input_bus_B_ -> name() << endl;
+        cout << space << "ALU(" << _alu_name_ << ") output_bus_A: " << _output_bus_A_ -> name() << endl;
+        cout << space << "ALU(" << _alu_name_ << ") output_bus_B: " << _output_bus_B_ -> name() << endl;
+        cout << prefix << "ALU(" << _alu_name_ << ") control_bus: " << _control_bus_ -> name() << endl;
     }
 
     void AluBase::_ARITHMETIC_ADD() {

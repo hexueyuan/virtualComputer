@@ -5,6 +5,7 @@
 #define __SHIFTOR_H__
 
 //移位器
+//指令长2位
 namespace base {
     class ShiftorBase {
         public:
