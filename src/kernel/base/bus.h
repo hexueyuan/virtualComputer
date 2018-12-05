@@ -41,11 +41,11 @@ namespace base {
     BusBase::~BusBase() {}
 
     void BusBase::write(unsigned long _data_) {
-        _bus_data_ = _data_ & ((1 << _bus_width_) - 1);
+        _bus_data_ = _data_ & (((unsigned long)1 << _bus_width_) - 1);
     }
 
     unsigned long BusBase::read() {
-        return _bus_data_ & ((1 << _bus_width_) - 1);
+        return _bus_data_ & (((unsigned long)1 << _bus_width_) - 1);
     }
 
     void BusBase::debug(string tab = "") {

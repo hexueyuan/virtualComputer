@@ -76,7 +76,7 @@ namespace base {
 
         switch (_instruction_) {
             case REGISTER_READ:
-                _register_ = (_input_bus_ -> read()) & ((1 << (_data_width_)) - 1);
+                _register_ = (_input_bus_ -> read()) & (((unsigned long)1 << (_data_width_)) - 1);
                 break;
             case REGISTER_WRITE:
                 _output_bus_ -> write(_register_);

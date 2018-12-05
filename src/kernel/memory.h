@@ -20,8 +20,9 @@ namespace compute {
             //      _addr_ 地址选择总线
             //      _unit_bsize 存储单元字长 由于使用unsigned long来mock的，所以最大支持64位, 也就是8bytes
             //      _addr_bits_width 地址宽度 存储器空间 = 存储单元字长 * 存储单元数量 = 存储单元字长 * (2 ^ 地址宽度)
+            //      _mem_active_bits 有效指令位
             MemoryBase(base::BusBase* _input_, base::BusBase* _output_, base::BusBase* _control_, 
-                        base::BusBase* _addr_, unsigned long _unit_bsize, unsigned long _addr_bits_width);
+                        base::BusBase* _addr_, unsigned long _unit_bsize, unsigned long _addr_bits_width, unsigned long _mem_active_bits);
             ~MemoryBase();
 
             //执行一次当前控制总线上的指令
@@ -38,6 +39,7 @@ namespace compute {
             base::BusBase* _address_bus_;
             base::BusBase* _control_bus_;
             unsigned long _instruction_;
+            unsigned long _memory_active_bits_;
 
             unsigned long _memory_unit_bits_size_;
             unsigned long _memory_addr_bits_width_;
@@ -50,32 +52,33 @@ namespace compute {
     };
 
     MemoryBase::MemoryBase(base::BusBase* _input_, base::BusBase* _output_, base::BusBase* _control_, 
-                            base::BusBase* _addr_, unsigned long _unit_bsize, unsigned long _addr_bits_width) {
+                            base::BusBase* _addr_, unsigned long _unit_bsize, unsigned long _addr_bits_width, unsigned long _mem_active_bits) {
         _input_data_bus_ = _input_;
         _output_data_bus_ = _output_;
         _control_bus_ = _control_;
         _address_bus_ = _addr_;
         _memory_unit_bits_size_ = _unit_bsize;
         _memory_addr_bits_width_ = _addr_bits_width;
-        _memory_ = new unsigned long[1 << _addr_bits_width];
+        _memory_ = new unsigned long[(unsigned long)1 << _addr_bits_width];
+        _memory_active_bits_ = _mem_active_bits;
     }
 
     MemoryBase::~MemoryBase() {}
 
     void MemoryBase::_write() {
-        if (_address_bus_ -> read() < (1 << _memory_addr_bits_width_)) {
-            _memory_[_address_bus_ -> read()] = (_input_data_bus_ -> read()) & ((1 << _memory_unit_bits_size_) - 1);
+        if (_address_bus_ -> read() < ((unsigned long)1 << _memory_addr_bits_width_)) {
+            _memory_[_address_bus_ -> read()] = (_input_data_bus_ -> read()) & (((unsigned long)1 << _memory_unit_bits_size_) - 1);
         }
     }
 
     void MemoryBase::_read() {
-        if (_address_bus_ -> read() < (1 << _memory_addr_bits_width_)) {
+        if (_address_bus_ -> read() < ((unsigned long)1 << _memory_addr_bits_width_)) {
             _output_data_bus_ -> write(_memory_[_address_bus_ -> read()]);
         }
     }
 
     void MemoryBase::operator()() {
-        _instruction_ = _control_bus_ -> read();
+        _instruction_ = base::_extract_instruction(_control_bus_ -> read(), _memory_active_bits_);
 
         switch (_instruction_) {
             case MEMORY_READ:

@@ -84,10 +84,10 @@ namespace base {
 
         switch (_instruction_) {
             case MUTIL_REGISTER_READ_A:
-                _register_ = (_input_bus_A_ -> read()) & ((1 << (_data_width_)) - 1);
+                _register_ = (_input_bus_A_ -> read()) & (((unsigned long)1 << (_data_width_)) - 1);
                 break;
             case MUTIL_REGISTER_READ_B:
-                _register_ = (_input_bus_B_ -> read()) & ((1 << (_data_width_)) - 1);
+                _register_ = (_input_bus_B_ -> read()) & (((unsigned long)1 << (_data_width_)) - 1);
                 break;
             case MUTIL_REGISTER_WRITE_A:
                 _output_bus_A_ -> write(_register_);

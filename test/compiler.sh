@@ -18,4 +18,6 @@
 
 #g++ -iquote./../src/kernel test_memory.cpp -o test_memory
 
-g++ -iquote./../src/kernel/base test_mutilregister.cpp -o test_mutilregister
+#g++ -iquote./../src/kernel/base test_mutilregister.cpp -o test_mutilregister
+
+g++ -iquote./../src/kernel test_instruction_generator.cpp -o test_instruction_generator
