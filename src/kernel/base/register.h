@@ -2,9 +2,14 @@
 #include "bus.h"
 #include "bits.h"
 
-
 #ifndef __REGISTER_H__
 #define __REGISTER_H__
+
+/*register*/
+#define REGISTER_NOT_ENABLE     0b00    //寄存器不执行任何指令
+#define REGISTER_CONTAIN        0b01    //保留
+#define REGISTER_WRITE          0b10    //向输出总线写数据
+#define REGISTER_READ           0b11    //从输入总线读数据
 
 //寄存器
 //位长可变
@@ -70,10 +75,10 @@ namespace base {
         _instruction_ = (((_control_bus_ -> read()) & _instruction_active_bits_) >> _offset);
 
         switch (_instruction_) {
-            case REGISTER_WRITE:
+            case REGISTER_READ:
                 _register_ = (_input_bus_ -> read()) & ((1 << (_data_width_)) - 1);
                 break;
-            case REGISTER_READ:
+            case REGISTER_WRITE:
                 _output_bus_ -> write(_register_);
                 break;
             case REGISTER_NOT_ENABLE:

@@ -4,6 +4,12 @@
 #ifndef __SHIFTOR_H__
 #define __SHIFTOR_H__
 
+/*shiftor.h*/
+#define SHIFTOR_NOT_ENABLE          0b00    //移位器不执行指令
+#define SHIFTOR_LEFT_SHIFT          0b01    //逻辑左移
+#define SHIFTOR_RIGHT_SHIFT         0b10    //逻辑右移
+#define SHIFTOR_DIRECT_TRANSMISSION 0b11    //数据直传
+
 //移位器
 //指令长2位
 namespace base {

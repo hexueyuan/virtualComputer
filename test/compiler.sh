@@ -16,4 +16,6 @@
 
 #g++ -iquote./../src/kernel/base test_bits.cpp -o test_bits
 
-g++ -iquote./../src/kernel test_memory.cpp -o test_memory
+#g++ -iquote./../src/kernel test_memory.cpp -o test_memory
+
+g++ -iquote./../src/kernel/base test_mutilregister.cpp -o test_mutilregister

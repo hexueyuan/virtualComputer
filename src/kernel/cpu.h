@@ -26,7 +26,11 @@ namespace compute {
             CPU(base::BusBase* _in_R0_, base::BusBase* _in_R1_, base::BusBase* _in_R2_, base::BusBase* _in_R3_,
                     base::BusBase* _in_IP_, base::BusBase* _in_PC_, base::BusBase* _in_C_, base::BusBase* _in_D_,
                     base::BusBase* _in_MAR_, base::BusBase* _in_MDR_, base::BusBase* _in_PSW_, base::BusBase* _in_SP_,
-                    base::BusBase* _out_, base::BusBase* _control_);
+                    base::BusBase* _out_, base::BusBase* _control_, 
+                    unsigned long _selector_A_active_bits,
+                    unsigned long _selector_B_active_bits,
+                    unsigned long _alu_active_bits,
+                    unsigned long _shiftor_active_bits);
             ~CPU();
 
             //执行一次当前控制总线上的指令
@@ -48,26 +52,14 @@ namespace compute {
             string _name_;
     };
 
-#define BUS_RO 0b000
-#define BUS_R1 0b001
-#define BUS_R2 0b010
-#define BUS_R3 0b011
-
-#define BUS_IP 0b100
-#define BUS_MAR 0b100
-
-#define BUS_PC 0b101
-#define BUS_MDR 0b101
-
-#define BUS_C 0b110
-#define BUS_D 0b110
-
-#define BUS_SP 0b111
-#define BUS_PSW 0b111
     CPU::CPU(base::BusBase* _in_R0_, base::BusBase* _in_R1_, base::BusBase* _in_R2_, base::BusBase* _in_R3_,
                 base::BusBase* _in_IP_, base::BusBase* _in_PC_, base::BusBase* _in_C_, base::BusBase* _in_D_,
                 base::BusBase* _in_MAR_, base::BusBase* _in_MDR_, base::BusBase* _in_PSW_, base::BusBase* _in_SP_,
-                base::BusBase* _out_, base::BusBase* _control_) {
+                base::BusBase* _out_, base::BusBase* _control_,
+                unsigned long _selector_A_active_bits,
+                unsigned long _selector_B_active_bits,
+                unsigned long _alu_active_bits,
+                unsigned long _shiftor_active_bits) {
         //定义CPU内总线
         _selector_A_out_bus_ = new base::BusBase(DATA_BITS_SIZE);
         _selector_A_out_bus_ -> named("CPU_inside_selector_A_out_bus");
@@ -83,23 +75,23 @@ namespace compute {
         _selector_A_ = new base::SelectorBase(_in_R0_, _in_R1_, _in_R2_, _in_R3_,
                                             _in_IP_, _in_PC_, _in_C_, _in_SP_, 
                                             _selector_A_out_bus_, _control_,
-                                            SELECTOR_A_INSTRUCTION_ACTIVE_BITS);
+                                            _selector_A_active_bits);
         _selector_B_ = new base::SelectorBase(_in_R0_, _in_R1_, _in_R2_, _in_R3_,
                                             _in_MAR_, _in_MDR_, _in_D_, _in_PSW_,
                                             _selector_B_out_bus_, _control_,
-                                            SELECTOR_B_INSTRUCTION_ACTIVE_BITS);
+                                            _selector_B_active_bits);
         _selector_A_ -> named("CPU_inside_selector_A");
         _selector_B_ -> named("CPU_inside_selector_B");
         
         //创建ALU
         //与CPU共用控制总线
         _alu_ = new base::AluBase(_selector_A_out_bus_, _selector_B_out_bus_, _alu_out_bus_A_, _alu_out_bus_B_, 
-                                _control_, ALU_INSTRUCTION_ACTIVE_BITS);
+                                _control_, _alu_active_bits);
         _alu_ -> named("CPU_inside_ALU");
         
         //创建移位器
         //与CPU共用控制总线
-        _shiftor_ = new base::ShiftorBase(_alu_out_bus_A_, _alu_out_bus_B_, _out_, _control_, SHIFTOR_INSTRUCTION_ACTIVE_BITS);
+        _shiftor_ = new base::ShiftorBase(_alu_out_bus_A_, _alu_out_bus_B_, _out_, _control_, _shiftor_active_bits);
         _shiftor_ -> named("CPU_inside_shiftor");
     }
 

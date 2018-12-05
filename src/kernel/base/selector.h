@@ -4,6 +4,24 @@
 #ifndef __SELECTOR_H__
 #define __SELECTOR_H__
 
+/*selector.h*/
+#define SELECTOR_NOT_ENABLE     0b0000  //选择器不执行指令
+#define SELECTOR_CONTAIN_0      0b0001  //保留
+#define SELECTOR_CONTAIN_1      0b0010  //保留
+#define SELECTOR_CONTAIN_2      0b0011  //保留
+#define SELECTOR_CONTAIN_3      0b0100  //保留
+#define SELECTOR_CONTAIN_4      0b0101  //保留
+#define SELECTOR_CONTAIN_5      0b0110  //保留
+#define SELECTOR_CONTAIN_6      0b0111  //保留
+#define SELECTOR_ROUTE_0        0b1000  //选择路由0
+#define SELECTOR_ROUTE_1        0b1001  //选择路由1
+#define SELECTOR_ROUTE_2        0b1010  //选择路由2
+#define SELECTOR_ROUTE_3        0b1011  //选择路由3
+#define SELECTOR_ROUTE_4        0b1100  //选择路由4
+#define SELECTOR_ROUTE_5        0b1101  //选择路由5
+#define SELECTOR_ROUTE_6        0b1110  //选择路由6
+#define SELECTOR_ROUTE_7        0b1111  //选择路由7
+
 //八路选择器
 //ALU使用选择器从多个寄存器中获取数据
 //指令长度4位，其中3位用于选路，1位用于控制使能

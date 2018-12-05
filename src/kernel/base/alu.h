@@ -6,6 +6,16 @@
 #ifndef __ALU_H__
 #define __ALU_H__
 
+/*alu.h*/
+#define ALU_NOT_ENABLE          0b000   //ALU不执行指令
+#define ALU_ARITHMETIC_ADD      0b001   //算术加法
+#define ALU_LOGIC_AND           0b010   //逻辑与
+#define ALU_LOGIC_OR            0b011   //逻辑或
+#define ALU_LOGIC_NOT           0b100   //逻辑非
+#define ALU_DIRECT_TRANSMISSION 0b101   //数据直传
+#define ALU_CONTAIN_1           0b110   //保留
+#define ALU_CONTAIN_2           0b111   //保留
+
 //ALU机器计算部件
 //执行逻辑运算和加法运算
 //指令长3位
