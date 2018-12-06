@@ -10,8 +10,8 @@
 namespace base {
     class BusBase {
         public:
-            //构造函数，传入总线宽度，默认值在options中定义，实际值
-            BusBase(unsigned long _width_ = GLOBAL_MAX_BITS_SIZE);
+            //构造函数，传入总线宽度,实际值
+            BusBase(unsigned long _width_);
             ~BusBase();
 
             //一端写入

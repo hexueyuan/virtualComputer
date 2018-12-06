@@ -30,7 +30,8 @@ namespace compute {
                     unsigned long _selector_A_active_bits,
                     unsigned long _selector_B_active_bits,
                     unsigned long _alu_active_bits,
-                    unsigned long _shiftor_active_bits);
+                    unsigned long _shiftor_active_bits,
+                    unsigned long _data_bits_width);
             ~CPU();
 
             //执行一次当前控制总线上的指令
@@ -59,15 +60,16 @@ namespace compute {
                 unsigned long _selector_A_active_bits,
                 unsigned long _selector_B_active_bits,
                 unsigned long _alu_active_bits,
-                unsigned long _shiftor_active_bits) {
+                unsigned long _shiftor_active_bits,
+                unsigned long _data_bits_width) {
         //定义CPU内总线
-        _selector_A_out_bus_ = new base::BusBase(DATA_BITS_SIZE);
+        _selector_A_out_bus_ = new base::BusBase(_data_bits_width);
         _selector_A_out_bus_ -> named("CPU_inside_selector_A_out_bus");
-        _selector_B_out_bus_ = new base::BusBase(DATA_BITS_SIZE);
+        _selector_B_out_bus_ = new base::BusBase(_data_bits_width);
         _selector_B_out_bus_ -> named("CPU_inside_selector_A_out_bus");
-        _alu_out_bus_A_ = new base::BusBase(DATA_BITS_SIZE);
+        _alu_out_bus_A_ = new base::BusBase(_data_bits_width);
         _alu_out_bus_A_ -> named("CPU_inside_ALU_out_bus_A");
-        _alu_out_bus_B_ = new base::BusBase(DATA_BITS_SIZE);
+        _alu_out_bus_B_ = new base::BusBase(_data_bits_width);
         _alu_out_bus_B_ -> named("CPU_insode_ALU_out_bus_B");
         
         //创建选择器
