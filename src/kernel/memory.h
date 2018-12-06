@@ -31,7 +31,7 @@ namespace compute {
             //命名
             void named(string _name);
             //调试
-            void debug(string prefix = "");
+            void debug(unsigned long _addr, string prefix = "");
 
         private:
             base::BusBase* _input_data_bus_;
@@ -98,13 +98,11 @@ namespace compute {
         _name_ = _name;
     }
 
-    void MemoryBase::debug(string prefix) {
+    void MemoryBase::debug(unsigned long _addr, string prefix) {
         string space(prefix.length(), ' ');
 
         cout << "Memory: " << _name_ << endl;
-        for (unsigned long i = 0; i < (1 << _memory_addr_bits_width_); ++i) {
-            cout << space << base::_bin_str(i, _memory_addr_bits_width_) << ": " << base::_bin_str(_memory_[i], _memory_unit_bits_size_) << endl;
-        }
+        cout << space << base::_bin_str(_addr, _memory_addr_bits_width_) << ": " << base::_bin_str(_memory_[_addr], _memory_unit_bits_size_) << endl;
         cout << space << "Memory(" << _name_ << ") data in bus: " << _input_data_bus_ -> name() << endl;
         cout << space << "Memory(" << _name_ << ") data out bus: " << _output_data_bus_ -> name() << endl;
         cout << prefix << "Memory(" << _name_ << ") control bus: " << _control_bus_ -> name() << endl;

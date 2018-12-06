@@ -243,7 +243,7 @@ namespace compute {
         //创建内存
         _memory_ = new compute::MemoryBase(_outside_data_bus_, _outside_data_bus_, 
                                             _outside_control_bus_, _outside_address_bus_, 
-                                            MEMORY_UNIT_BITS_SIZE, 1 << OUTSIDE_ADDRESS_BITS_WIDTH, MEMORY_ACTIVE_BITS);
+                                            MEMORY_UNIT_BITS_SIZE, OUTSIDE_ADDRESS_BITS_WIDTH, MEMORY_ACTIVE_BITS);
         _memory_ -> named("Memory");
    }
 
@@ -269,7 +269,6 @@ namespace compute {
 
    void InstructionGeneratorBase::_run_once() {
        (*_R0_)();
-       //_R0_ -> debug();
        (*_R1_)();
        (*_R2_)();
        (*_R3_)();
@@ -376,7 +375,6 @@ namespace compute {
         }
             _inside_control_bus_ -> write(_ins);
             _outside_control_bus_ -> write(_outside_ins_nop_);
-            debug();
             _run_once();
    }
 
@@ -550,7 +548,7 @@ namespace compute {
         _MAR_ -> debug("+---");
         _MDR_ -> debug("+---");
         _PSW_ -> debug("+---");
-        //_memory_ -> debug("+---");
+        //_memory_ -> debug(0, "+---");
     }
 }
 
