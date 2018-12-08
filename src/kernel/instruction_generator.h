@@ -15,6 +15,7 @@
 #define OUTSIDE_DATA_BITS_WIDTH         (unsigned long)32 //外数据总线宽度
 #define OUTSIZE_CONTROL_BITS_WIDTH      (unsigned long)2 //外控制总线宽度
 #define MEMORY_UNIT_BITS_SIZE           (unsigned long)32    //存储单元大小
+#define INSTRUCTION_BITS_WIDTH          (unsigned long)32   //指令长度
 
 //内控制总线指令有效位定义
 #define SHIFTOR_ACTIVE_BITS             (unsigned long)0b110000000000000000000000000000000000000
@@ -82,6 +83,14 @@
 #define REGISTER_MDR    (unsigned long)0b000000001010
 #define REGISTER_PSW    (unsigned long)0b000000001011
 
+//PSW有效位
+#define PSW_POSITIVE        (unsigned long)0b0000000000000001
+#define PSW_NAGITIVE        (unsigned long)0b0000000000000010
+#define PSW_ZERO            (unsigned long)0b0000000000000100
+#define PSW_ODD             (unsigned long)0b0000000000001000
+#define PSW_EVEN            (unsigned long)0b0000000000010000
+#define PSW_OVERFLOW        (unsigned long)0b0000000000100000
+
 unsigned long _inside_ins_nop_ = (base::_generate_instruction(SHIFTOR_NOT_ENABLE, SHIFTOR_ACTIVE_BITS) | 
                             base::_generate_instruction(ALU_NOT_ENABLE, ALU_ACTIVE_BITS) |
                             base::_generate_instruction(SELECTOR_NOT_ENABLE, SELECTOR_A_ACTIVE_BITS) |
@@ -99,7 +108,7 @@ unsigned long _inside_ins_nop_ = (base::_generate_instruction(SHIFTOR_NOT_ENABLE
                             base::_generate_instruction(MUTIL_REGISTER_NOT_ENABLE, REGISTER_MAR_ACTIVE_BITS) |
                             base::_generate_instruction(MUTIL_REGISTER_NOT_ENABLE, REGISTER_MDR_ACTIVE_BITS));
 unsigned long _outside_ins_nop_ = 0b00;
-//一个CPU、一个主存、一个辅存、四个通用寄存器、八个特殊寄存器、单条内数据总线、单条内控制总线
+//一个CPU、一个主存、四个通用寄存器、八个特殊寄存器、单条内数据总线、单条内控制总线
 //单条外数据总线、单条外控制总线、单条外地址总线
 
 //微指令生成器&计算机指令执行控制器
@@ -127,7 +136,7 @@ namespace compute {
             ~InstructionGeneratorBase();
             
             //执行传入的汇编指令
-            void operator()(unsigned long _ins);
+            void operator()();
 
             //
             void debug();
@@ -165,6 +174,28 @@ namespace compute {
             void _mov_inside_bus_to_outside_data_bus();
             void _mov_outside_bus_to_inside_bus();
 
+            //从PC寄存器中指出的地址里取出指令到IP寄存器中
+            //PC+1
+            void _load_instruction();
+            //微指令生成器解析IP中的指令并生成微指令
+            void _analysis_instruction();
+            //将指令第一个操作数放到选择器A
+            void _ready_op_1();
+            //将指令第二个操作数放到选择器B
+            void _ready_op_2();
+            //计算
+            void _calculate();
+            //存放计算结果
+            void _store_answer();
+
+            /*指令执行阶段*/
+            /*1.从PC中取指令 存放到IP*/
+            /*2.微指令生成器读取IP解析*/
+            /*3.取源操作数*/
+            /*4.取目的操作数*/
+            /*5.计算PSW值并写入PSW寄存器*/
+            /*6.执行指令*/
+            /*7.*/
             /*---------指令-----------*/
             void _NOP(unsigned long _ins);
             void _MOV(unsigned long _ins);
@@ -426,8 +457,41 @@ namespace compute {
         _register_write_to_inside_bus(REGISTER_MDR);
     }
 
-    void InstructionGeneratorBase::operator()(unsigned long _ins) {
+    void InstructionGeneratorBase::_load_instruction() {
+        //load [PC] -> inside data bus
+        _register_write_to_inside_bus(REGISTER_PC);
+        _mov_inside_bus_to_outside_address_bus();
+        _memory_write_to_outside_bus();
+        _mov_outside_bus_to_inside_bus();
+        //inside data bus -> IP
+        _register_read_from_inside_bus(REGISTER_IP);
+        //PC += 1
+        _register_write_to_inside_bus(REGISTER_PC);
+        unsigned long _ins_1 = _inside_ins_nop_ | base::_generate_instruction(SELECTOR_ROUTE_0, SELECTOR_A_ACTIVE_BITS);
+        _inside_control_bus_ -> write(_ins_1);
+        _run_once();
+        _inside_data_bus_ -> write(1);
+        unsigned long _ins_2 = _inside_ins_nop_ | base::_generate_instruction(SELECTOR_ROUTE_0, SELECTOR_B_ACTIVE_BITS);
+        _inside_control_bus_ -> write(_ins_2);
+        _run_once();
+        unsigned long _ins_3 = _inside_ins_nop_ | base::_generate_instruction(ALU_ARITHMETIC_ADD, ALU_ACTIVE_BITS);
+        _inside_control_bus_ -> write(_ins_3);
+        _run_once();
+        unsigned long _ins_4 = _inside_ins_nop_ | base::_generate_instruction(SHIFTOR_DIRECT_TRANSMISSION, SHIFTOR_ACTIVE_BITS);
+        _inside_control_bus_ -> write(_ins_4);
+        _run_once();
+        _register_read_from_inside_bus(REGISTER_PC);
+    }
+
+    void InstructionGeneratorBase::operator()() {
+        //[PC++] -> IP
+        _load_instruction();
+        //IP -> mirco instruction
+        _register_write_to_inside_bus(REGISTER_IP);
+        unsigned long _ins = _inside_data_bus_ -> read();
         unsigned long _instruction_type = base::_extract_instruction(_ins, INSTRUCTION_TYPE);
+
+        //instruction set
         switch (_instruction_type) {
             case INSTRUCTION_MOV:
                 _MOV(_ins);
@@ -580,18 +644,499 @@ namespace compute {
         //inside data bus -> register C
         _register_read_from_inside_bus(REGISTER_C);
     }
-    void InstructionGeneratorBase::_AND(unsigned long _ins) {}
-    void InstructionGeneratorBase::_OR(unsigned long _ins) {}
-    void InstructionGeneratorBase::_NOT(unsigned long _ins) {}
-    void InstructionGeneratorBase::_XOR(unsigned long _ins) {}
-    void InstructionGeneratorBase::_ZERO(unsigned long _ins) {}
-    void InstructionGeneratorBase::_LSFT(unsigned long _ins) {}
-    void InstructionGeneratorBase::_RSFT(unsigned long _ins) {}
-    void InstructionGeneratorBase::_CMP(unsigned long _ins) {}
-    void InstructionGeneratorBase::_JMP(unsigned long _ins) {}
-    void InstructionGeneratorBase::_JMPZ(unsigned long _ins) {}
-    void InstructionGeneratorBase::_JMPN(unsigned long _ins) {}
-    void InstructionGeneratorBase::_JMPP(unsigned long _ins) {}
+    
+    void InstructionGeneratorBase::_AND(unsigned long _ins) {
+        unsigned long _op_1_addr_type = base::_extract_instruction(_ins, OPERATE_NUMBER_1_ADDRESS_METHOD);
+        unsigned long _op_1_ = base::_extract_instruction(_ins, OPERATE_NUMBER_1);
+        unsigned long _op_2_addr_type = base::_extract_instruction(_ins, OPERATE_NUMBER_2_ADDRESS_METHOD);
+        unsigned long _op_2_ = base::_extract_instruction(_ins, OPERATE_NUMBER_2);
+
+        //op1 -> inside data bus
+        if (_op_1_addr_type == ADDRESS_REGISTER) {
+            //REG -> DATA_BUS
+            _register_write_to_inside_bus(_op_1_);
+        } else if (_op_1_addr_type == ADDRESS_NUMBER) {
+            //NUMBER -> DATA_BUS
+            _inside_data_bus_ -> write(_op_1_);
+        } else if (_op_1_addr_type == ADDRESS_MEMORY) {
+            //write address to outside address bus
+            _outside_address_bus_ -> write(_op_1_);
+            //memory -> outside data bus
+            _memory_write_to_outside_bus();
+            //outside data bus -> inside data bus
+            _mov_outside_bus_to_inside_bus();
+        }
+
+        //inside data bus -> selector A
+        unsigned long _ins_1 = _inside_ins_nop_ | base::_generate_instruction(SELECTOR_ROUTE_0, SELECTOR_A_ACTIVE_BITS);
+        _inside_control_bus_ -> write(_ins_1);
+        _outside_control_bus_ -> write(_outside_ins_nop_);
+        _run_once();
+
+        //op2 -> inside data bus
+        if (_op_2_addr_type == ADDRESS_REGISTER) {
+            //REG -> DATA_BUS
+            _register_write_to_inside_bus(_op_2_);
+        } else if (_op_2_addr_type == ADDRESS_NUMBER) {
+            //NUMBER -> DATA_BUS
+            _inside_data_bus_ -> write(_op_2_);
+        } else if (_op_2_addr_type == ADDRESS_MEMORY) {
+            //write address to outside address bus
+            _outside_address_bus_ -> write(_op_2_);
+            //memory -> outside data bus
+            _memory_write_to_outside_bus();
+            //outside data bus -> inside data bus
+            _mov_outside_bus_to_inside_bus();
+        }
+
+        //inside data bus -> selector B
+        unsigned long _ins_2 = _inside_ins_nop_ | base::_generate_instruction(SELECTOR_ROUTE_0, SELECTOR_B_ACTIVE_BITS);
+        _inside_control_bus_ -> write(_ins_2);
+        _outside_control_bus_ -> write(_outside_ins_nop_);
+        _run_once();
+
+        //alu run and
+        unsigned long _ins_3 = _inside_ins_nop_ | base::_generate_instruction(ALU_LOGIC_AND, ALU_ACTIVE_BITS);
+        _inside_control_bus_ -> write(_ins_3);
+        _outside_control_bus_ -> write(_outside_ins_nop_);
+        _run_once();
+
+        //shiftor direct transform to inside data bus
+        unsigned long _ins_4 = _inside_ins_nop_ | base::_generate_instruction(SHIFTOR_DIRECT_TRANSMISSION, SHIFTOR_ACTIVE_BITS);
+        _inside_control_bus_ -> write(_ins_4);
+        _outside_control_bus_ -> write(_outside_ins_nop_);
+        _run_once();
+
+        //inside data bus -> register C
+        _register_read_from_inside_bus(REGISTER_C);
+    }
+
+    void InstructionGeneratorBase::_OR(unsigned long _ins) {
+        unsigned long _op_1_addr_type = base::_extract_instruction(_ins, OPERATE_NUMBER_1_ADDRESS_METHOD);
+        unsigned long _op_1_ = base::_extract_instruction(_ins, OPERATE_NUMBER_1);
+        unsigned long _op_2_addr_type = base::_extract_instruction(_ins, OPERATE_NUMBER_2_ADDRESS_METHOD);
+        unsigned long _op_2_ = base::_extract_instruction(_ins, OPERATE_NUMBER_2);
+
+        //op1 -> inside data bus
+        if (_op_1_addr_type == ADDRESS_REGISTER) {
+            //REG -> DATA_BUS
+            _register_write_to_inside_bus(_op_1_);
+        } else if (_op_1_addr_type == ADDRESS_NUMBER) {
+            //NUMBER -> DATA_BUS
+            _inside_data_bus_ -> write(_op_1_);
+        } else if (_op_1_addr_type == ADDRESS_MEMORY) {
+            //write address to outside address bus
+            _outside_address_bus_ -> write(_op_1_);
+            //memory -> outside data bus
+            _memory_write_to_outside_bus();
+            //outside data bus -> inside data bus
+            _mov_outside_bus_to_inside_bus();
+        }
+
+        //inside data bus -> selector A
+        unsigned long _ins_1 = _inside_ins_nop_ | base::_generate_instruction(SELECTOR_ROUTE_0, SELECTOR_A_ACTIVE_BITS);
+        _inside_control_bus_ -> write(_ins_1);
+        _outside_control_bus_ -> write(_outside_ins_nop_);
+        _run_once();
+
+        //op2 -> inside data bus
+        if (_op_2_addr_type == ADDRESS_REGISTER) {
+            //REG -> DATA_BUS
+            _register_write_to_inside_bus(_op_2_);
+        } else if (_op_2_addr_type == ADDRESS_NUMBER) {
+            //NUMBER -> DATA_BUS
+            _inside_data_bus_ -> write(_op_2_);
+        } else if (_op_2_addr_type == ADDRESS_MEMORY) {
+            //write address to outside address bus
+            _outside_address_bus_ -> write(_op_2_);
+            //memory -> outside data bus
+            _memory_write_to_outside_bus();
+            //outside data bus -> inside data bus
+            _mov_outside_bus_to_inside_bus();
+        }
+
+        //inside data bus -> selector B
+        unsigned long _ins_2 = _inside_ins_nop_ | base::_generate_instruction(SELECTOR_ROUTE_0, SELECTOR_B_ACTIVE_BITS);
+        _inside_control_bus_ -> write(_ins_2);
+        _outside_control_bus_ -> write(_outside_ins_nop_);
+        _run_once();
+
+        //alu run or
+        unsigned long _ins_3 = _inside_ins_nop_ | base::_generate_instruction(ALU_LOGIC_OR, ALU_ACTIVE_BITS);
+        _inside_control_bus_ -> write(_ins_3);
+        _outside_control_bus_ -> write(_outside_ins_nop_);
+        _run_once();
+
+        //shiftor direct transform to inside data bus
+        unsigned long _ins_4 = _inside_ins_nop_ | base::_generate_instruction(SHIFTOR_DIRECT_TRANSMISSION, SHIFTOR_ACTIVE_BITS);
+        _inside_control_bus_ -> write(_ins_4);
+        _outside_control_bus_ -> write(_outside_ins_nop_);
+        _run_once();
+
+        //inside data bus -> register C
+        _register_read_from_inside_bus(REGISTER_C);
+
+    }
+
+    void InstructionGeneratorBase::_NOT(unsigned long _ins) {
+        unsigned long _op_1_addr_type = base::_extract_instruction(_ins, OPERATE_NUMBER_1_ADDRESS_METHOD);
+        unsigned long _op_1_ = base::_extract_instruction(_ins, OPERATE_NUMBER_1);
+        //unsigned long _op_2_addr_type = base::_extract_instruction(_ins, OPERATE_NUMBER_2_ADDRESS_METHOD);
+        //unsigned long _op_2_ = base::_extract_instruction(_ins, OPERATE_NUMBER_2);
+
+        //op1 -> inside data bus
+        if (_op_1_addr_type == ADDRESS_REGISTER) {
+            //REG -> DATA_BUS
+            _register_write_to_inside_bus(_op_1_);
+        } else if (_op_1_addr_type == ADDRESS_NUMBER) {
+            //NUMBER -> DATA_BUS
+            _inside_data_bus_ -> write(_op_1_);
+        } else if (_op_1_addr_type == ADDRESS_MEMORY) {
+            //write address to outside address bus
+            _outside_address_bus_ -> write(_op_1_);
+            //memory -> outside data bus
+            _memory_write_to_outside_bus();
+            //outside data bus -> inside data bus
+            _mov_outside_bus_to_inside_bus();
+        }
+
+        //inside data bus -> selector A
+        unsigned long _ins_1 = _inside_ins_nop_ | base::_generate_instruction(SELECTOR_ROUTE_0, SELECTOR_A_ACTIVE_BITS);
+        _inside_control_bus_ -> write(_ins_1);
+        _outside_control_bus_ -> write(_outside_ins_nop_);
+        _run_once();
+
+        ////op2 -> inside data bus
+        //if (_op_2_addr_type == ADDRESS_REGISTER) {
+        //    //REG -> DATA_BUS
+        //    _register_write_to_inside_bus(_op_2_);
+        //} else if (_op_2_addr_type == ADDRESS_NUMBER) {
+        //    //NUMBER -> DATA_BUS
+        //    _inside_data_bus_ -> write(_op_2_);
+        //} else if (_op_2_addr_type == ADDRESS_MEMORY) {
+        //    //write address to outside address bus
+        //    _outside_address_bus_ -> write(_op_2_);
+        //    //memory -> outside data bus
+        //    _memory_write_to_outside_bus();
+        //    //outside data bus -> inside data bus
+        //    _mov_outside_bus_to_inside_bus();
+        //}
+
+        ////inside data bus -> selector B
+        //unsigned long _ins_2 = _inside_ins_nop_ | base::_generate_instruction(SELECTOR_ROUTE_0, SELECTOR_B_ACTIVE_BITS);
+        //_inside_control_bus_ -> write(_ins_2);
+        //_outside_control_bus_ -> write(_outside_ins_nop_);
+        //_run_once();
+
+        //alu run add
+        unsigned long _ins_3 = _inside_ins_nop_ | base::_generate_instruction(ALU_LOGIC_NOT, ALU_ACTIVE_BITS);
+        _inside_control_bus_ -> write(_ins_3);
+        _outside_control_bus_ -> write(_outside_ins_nop_);
+        _run_once();
+
+        //shiftor direct transform to inside data bus
+        unsigned long _ins_4 = _inside_ins_nop_ | base::_generate_instruction(SHIFTOR_DIRECT_TRANSMISSION, SHIFTOR_ACTIVE_BITS);
+        _inside_control_bus_ -> write(_ins_4);
+        _outside_control_bus_ -> write(_outside_ins_nop_);
+        _run_once();
+
+        //inside data bus -> register C
+        _register_read_from_inside_bus(REGISTER_C);
+    }
+
+    void InstructionGeneratorBase::_XOR(unsigned long _ins) {
+        unsigned long _op_1_addr_type = base::_extract_instruction(_ins, OPERATE_NUMBER_1_ADDRESS_METHOD);
+        unsigned long _op_1_ = base::_extract_instruction(_ins, OPERATE_NUMBER_1);
+        unsigned long _op_2_addr_type = base::_extract_instruction(_ins, OPERATE_NUMBER_2_ADDRESS_METHOD);
+        unsigned long _op_2_ = base::_extract_instruction(_ins, OPERATE_NUMBER_2);
+
+        //op1 -> inside data bus
+        if (_op_1_addr_type == ADDRESS_REGISTER) {
+            //REG -> DATA_BUS
+            _register_write_to_inside_bus(_op_1_);
+        } else if (_op_1_addr_type == ADDRESS_NUMBER) {
+            //NUMBER -> DATA_BUS
+            _inside_data_bus_ -> write(_op_1_);
+        } else if (_op_1_addr_type == ADDRESS_MEMORY) {
+            //write address to outside address bus
+            _outside_address_bus_ -> write(_op_1_);
+            //memory -> outside data bus
+            _memory_write_to_outside_bus();
+            //outside data bus -> inside data bus
+            _mov_outside_bus_to_inside_bus();
+        }
+
+        //inside data bus -> selector A
+        unsigned long _ins_1 = _inside_ins_nop_ | base::_generate_instruction(SELECTOR_ROUTE_0, SELECTOR_A_ACTIVE_BITS);
+        _inside_control_bus_ -> write(_ins_1);
+        _outside_control_bus_ -> write(_outside_ins_nop_);
+        _run_once();
+
+        //op2 -> inside data bus
+        if (_op_2_addr_type == ADDRESS_REGISTER) {
+            //REG -> DATA_BUS
+            _register_write_to_inside_bus(_op_2_);
+        } else if (_op_2_addr_type == ADDRESS_NUMBER) {
+            //NUMBER -> DATA_BUS
+            _inside_data_bus_ -> write(_op_2_);
+        } else if (_op_2_addr_type == ADDRESS_MEMORY) {
+            //write address to outside address bus
+            _outside_address_bus_ -> write(_op_2_);
+            //memory -> outside data bus
+            _memory_write_to_outside_bus();
+            //outside data bus -> inside data bus
+            _mov_outside_bus_to_inside_bus();
+        }
+
+        //inside data bus -> selector B
+        unsigned long _ins_2 = _inside_ins_nop_ | base::_generate_instruction(SELECTOR_ROUTE_0, SELECTOR_B_ACTIVE_BITS);
+        _inside_control_bus_ -> write(_ins_2);
+        _outside_control_bus_ -> write(_outside_ins_nop_);
+        _run_once();
+
+        //alu run xor
+        unsigned long _ins_3 = _inside_ins_nop_ | base::_generate_instruction(ALU_LOGIC_XOR, ALU_ACTIVE_BITS);
+        _inside_control_bus_ -> write(_ins_3);
+        _outside_control_bus_ -> write(_outside_ins_nop_);
+        _run_once();
+
+        //shiftor direct transform to inside data bus
+        unsigned long _ins_4 = _inside_ins_nop_ | base::_generate_instruction(SHIFTOR_DIRECT_TRANSMISSION, SHIFTOR_ACTIVE_BITS);
+        _inside_control_bus_ -> write(_ins_4);
+        _outside_control_bus_ -> write(_outside_ins_nop_);
+        _run_once();
+
+        //inside data bus -> register C
+        _register_read_from_inside_bus(REGISTER_C);
+    }
+
+    void InstructionGeneratorBase::_ZERO(unsigned long _ins) {
+        //先实现功能，后实现细节
+        //计算PSW
+        unsigned long _op_1_addr_type = base::_extract_instruction(_ins, OPERATE_NUMBER_1_ADDRESS_METHOD);
+        unsigned long _op_1_ = base::_extract_instruction(_ins, OPERATE_NUMBER_1);
+        
+        //op1 -> inside data bus
+        if (_op_1_addr_type == ADDRESS_REGISTER) {
+            //REG -> DATA_BUS
+            _register_write_to_inside_bus(_op_1_);
+        } else if (_op_1_addr_type == ADDRESS_NUMBER) {
+            //NUMBER -> DATA_BUS
+            _inside_data_bus_ -> write(_op_1_);
+        } else if (_op_1_addr_type == ADDRESS_MEMORY) {
+            //write address to outside address bus
+            _outside_address_bus_ -> write(_op_1_);
+            //memory -> outside data bus
+            _memory_write_to_outside_bus();
+            //outside data bus -> inside data bus
+            _mov_outside_bus_to_inside_bus();
+        }
+        //写psw
+        if (_inside_data_bus_ -> read() == 0) {
+            _inside_data_bus_ -> write(0 | PSW_ZERO);
+        } else {
+            _inside_data_bus_ -> write(0);
+        }
+        _register_read_from_inside_bus(REGISTER_PSW);
+    }
+
+    void InstructionGeneratorBase::_LSFT(unsigned long _ins) {
+        unsigned long _op_1_addr_type = base::_extract_instruction(_ins, OPERATE_NUMBER_1_ADDRESS_METHOD);
+        unsigned long _op_1_ = base::_extract_instruction(_ins, OPERATE_NUMBER_1);
+        unsigned long _op_2_addr_type = base::_extract_instruction(_ins, OPERATE_NUMBER_2_ADDRESS_METHOD);
+        unsigned long _op_2_ = base::_extract_instruction(_ins, OPERATE_NUMBER_2);
+
+        //op1 -> inside data bus
+        if (_op_1_addr_type == ADDRESS_REGISTER) {
+            //REG -> DATA_BUS
+            _register_write_to_inside_bus(_op_1_);
+        } else if (_op_1_addr_type == ADDRESS_NUMBER) {
+            //NUMBER -> DATA_BUS
+            _inside_data_bus_ -> write(_op_1_);
+        } else if (_op_1_addr_type == ADDRESS_MEMORY) {
+            //write address to outside address bus
+            _outside_address_bus_ -> write(_op_1_);
+            //memory -> outside data bus
+            _memory_write_to_outside_bus();
+            //outside data bus -> inside data bus
+            _mov_outside_bus_to_inside_bus();
+        }
+
+        //inside data bus -> selector A
+        unsigned long _ins_1 = _inside_ins_nop_ | base::_generate_instruction(SELECTOR_ROUTE_0, SELECTOR_A_ACTIVE_BITS);
+        _inside_control_bus_ -> write(_ins_1);
+        _outside_control_bus_ -> write(_outside_ins_nop_);
+        _run_once();
+
+        //op2 -> inside data bus
+        if (_op_2_addr_type == ADDRESS_REGISTER) {
+            //REG -> DATA_BUS
+            _register_write_to_inside_bus(_op_2_);
+        } else if (_op_2_addr_type == ADDRESS_NUMBER) {
+            //NUMBER -> DATA_BUS
+            _inside_data_bus_ -> write(_op_2_);
+        } else if (_op_2_addr_type == ADDRESS_MEMORY) {
+            //write address to outside address bus
+            _outside_address_bus_ -> write(_op_2_);
+            //memory -> outside data bus
+            _memory_write_to_outside_bus();
+            //outside data bus -> inside data bus
+            _mov_outside_bus_to_inside_bus();
+        }
+
+        //inside data bus -> selector B
+        unsigned long _ins_2 = _inside_ins_nop_ | base::_generate_instruction(SELECTOR_ROUTE_0, SELECTOR_B_ACTIVE_BITS);
+        _inside_control_bus_ -> write(_ins_2);
+        _outside_control_bus_ -> write(_outside_ins_nop_);
+        _run_once();
+
+        //alu direct transform
+        unsigned long _ins_3 = _inside_ins_nop_ | base::_generate_instruction(ALU_DIRECT_TRANSMISSION, ALU_ACTIVE_BITS);
+        _inside_control_bus_ -> write(_ins_3);
+        _outside_control_bus_ -> write(_outside_ins_nop_);
+        _run_once();
+
+        //shiftor left shift
+        unsigned long _ins_4 = _inside_ins_nop_ | base::_generate_instruction(SHIFTOR_LEFT_SHIFT, SHIFTOR_ACTIVE_BITS);
+        _inside_control_bus_ -> write(_ins_4);
+        _outside_control_bus_ -> write(_outside_ins_nop_);
+        _run_once();
+
+        //inside data bus -> register C
+        _register_read_from_inside_bus(REGISTER_C);
+    }
+
+    void InstructionGeneratorBase::_RSFT(unsigned long _ins) {
+        unsigned long _op_1_addr_type = base::_extract_instruction(_ins, OPERATE_NUMBER_1_ADDRESS_METHOD);
+        unsigned long _op_1_ = base::_extract_instruction(_ins, OPERATE_NUMBER_1);
+        unsigned long _op_2_addr_type = base::_extract_instruction(_ins, OPERATE_NUMBER_2_ADDRESS_METHOD);
+        unsigned long _op_2_ = base::_extract_instruction(_ins, OPERATE_NUMBER_2);
+
+        //op1 -> inside data bus
+        if (_op_1_addr_type == ADDRESS_REGISTER) {
+            //REG -> DATA_BUS
+            _register_write_to_inside_bus(_op_1_);
+        } else if (_op_1_addr_type == ADDRESS_NUMBER) {
+            //NUMBER -> DATA_BUS
+            _inside_data_bus_ -> write(_op_1_);
+        } else if (_op_1_addr_type == ADDRESS_MEMORY) {
+            //write address to outside address bus
+            _outside_address_bus_ -> write(_op_1_);
+            //memory -> outside data bus
+            _memory_write_to_outside_bus();
+            //outside data bus -> inside data bus
+            _mov_outside_bus_to_inside_bus();
+        }
+
+        //inside data bus -> selector A
+        unsigned long _ins_1 = _inside_ins_nop_ | base::_generate_instruction(SELECTOR_ROUTE_0, SELECTOR_A_ACTIVE_BITS);
+        _inside_control_bus_ -> write(_ins_1);
+        _outside_control_bus_ -> write(_outside_ins_nop_);
+        _run_once();
+
+        //op2 -> inside data bus
+        if (_op_2_addr_type == ADDRESS_REGISTER) {
+            //REG -> DATA_BUS
+            _register_write_to_inside_bus(_op_2_);
+        } else if (_op_2_addr_type == ADDRESS_NUMBER) {
+            //NUMBER -> DATA_BUS
+            _inside_data_bus_ -> write(_op_2_);
+        } else if (_op_2_addr_type == ADDRESS_MEMORY) {
+            //write address to outside address bus
+            _outside_address_bus_ -> write(_op_2_);
+            //memory -> outside data bus
+            _memory_write_to_outside_bus();
+            //outside data bus -> inside data bus
+            _mov_outside_bus_to_inside_bus();
+        }
+
+        //inside data bus -> selector B
+        unsigned long _ins_2 = _inside_ins_nop_ | base::_generate_instruction(SELECTOR_ROUTE_0, SELECTOR_B_ACTIVE_BITS);
+        _inside_control_bus_ -> write(_ins_2);
+        _outside_control_bus_ -> write(_outside_ins_nop_);
+        _run_once();
+
+        //alu direct transform
+        unsigned long _ins_3 = _inside_ins_nop_ | base::_generate_instruction(ALU_DIRECT_TRANSMISSION, ALU_ACTIVE_BITS);
+        _inside_control_bus_ -> write(_ins_3);
+        _outside_control_bus_ -> write(_outside_ins_nop_);
+        _run_once();
+
+        //shiftor right shift
+        unsigned long _ins_4 = _inside_ins_nop_ | base::_generate_instruction(SHIFTOR_RIGHT_SHIFT, SHIFTOR_ACTIVE_BITS);
+        _inside_control_bus_ -> write(_ins_4);
+        _outside_control_bus_ -> write(_outside_ins_nop_);
+        _run_once();
+
+        //inside data bus -> register C
+        _register_read_from_inside_bus(REGISTER_C);
+    }
+
+    void InstructionGeneratorBase::_CMP(unsigned long _ins) {
+    }
+
+    void InstructionGeneratorBase::_JMP(unsigned long _ins) {
+        unsigned long _op_1_addr_type = base::_extract_instruction(_ins, OPERATE_NUMBER_1_ADDRESS_METHOD);
+        unsigned long _op_1_ = base::_extract_instruction(_ins, OPERATE_NUMBER_1);
+        
+        //op1 -> inside data bus
+        if (_op_1_addr_type == ADDRESS_REGISTER) {
+            //REG -> DATA_BUS
+            _register_write_to_inside_bus(_op_1_);
+        } else if (_op_1_addr_type == ADDRESS_NUMBER) {
+            //NUMBER -> DATA_BUS
+            _inside_data_bus_ -> write(_op_1_);
+        } else if (_op_1_addr_type == ADDRESS_MEMORY) {
+            //write address to outside address bus
+            _outside_address_bus_ -> write(_op_1_);
+            //memory -> outside data bus
+            _memory_write_to_outside_bus();
+            //outside data bus -> inside data bus
+            _mov_outside_bus_to_inside_bus();
+        }
+
+        //inside data bus -> selector A
+        unsigned long _ins_1 = _inside_ins_nop_ | base::_generate_instruction(SELECTOR_ROUTE_0, SELECTOR_A_ACTIVE_BITS);
+        _inside_control_bus_ -> write(_ins_1);
+        _outside_control_bus_ -> write(_outside_ins_nop_);
+        _run_once();
+        
+        //alu direct transform
+        unsigned long _ins_3 = _inside_ins_nop_ | base::_generate_instruction(ALU_DIRECT_TRANSMISSION, ALU_ACTIVE_BITS);
+        _inside_control_bus_ -> write(_ins_3);
+        _outside_control_bus_ -> write(_outside_ins_nop_);
+        _run_once();
+
+        //shiftor direct transform
+        unsigned long _ins_4 = _inside_ins_nop_ | base::_generate_instruction(SHIFTOR_DIRECT_TRANSMISSION, SHIFTOR_ACTIVE_BITS);
+        _inside_control_bus_ -> write(_ins_4);
+        _outside_control_bus_ -> write(_outside_ins_nop_);
+        _run_once();
+
+        //inside bus -> PC
+        _register_read_from_inside_bus(REGISTER_PC);
+    }
+
+    void InstructionGeneratorBase::_JMPZ(unsigned long _ins) {
+        _register_write_to_inside_bus(REGISTER_PSW);
+        if (_inside_data_bus_ -> read() & PSW_ZERO) {
+            _JMP(_ins);
+        }
+    }
+
+    void InstructionGeneratorBase::_JMPN(unsigned long _ins) {
+        _register_write_to_inside_bus(REGISTER_PSW);
+        if (_inside_data_bus_ -> read() & PSW_NAGITIVE) {
+            _JMP(_ins);
+        }
+    }
+
+    void InstructionGeneratorBase::_JMPP(unsigned long _ins) {
+        _register_write_to_inside_bus(REGISTER_PSW);
+        if (_inside_data_bus_ -> read() & PSW_POSITIVE) {
+            _JMP(_ins);
+        }
+    }
 
     void InstructionGeneratorBase::debug() {
         _inside_control_bus_ -> debug("+---");

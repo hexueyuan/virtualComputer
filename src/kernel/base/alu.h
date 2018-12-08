@@ -13,7 +13,7 @@
 #define ALU_LOGIC_OR            0b011   //逻辑或
 #define ALU_LOGIC_NOT           0b100   //逻辑非
 #define ALU_DIRECT_TRANSMISSION 0b101   //数据直传
-#define ALU_CONTAIN_1           0b110   //保留
+#define ALU_LOGIC_XOR           0b110   //保留
 #define ALU_CONTAIN_2           0b111   //保留
 
 //ALU机器计算部件
@@ -62,6 +62,8 @@ namespace base {
             void _LOGIC_NOT();
             //直传
             void _DIRECT_TRANSMISSION();
+            //逻辑异或
+            void _LOGIC_XOR();
     };
 
     AluBase::AluBase(BusBase* _in_A_, BusBase* _in_B_, BusBase* _out_A_, BusBase* _out_B_, 
@@ -96,6 +98,9 @@ namespace base {
                 _DIRECT_TRANSMISSION();
                 break;
             case ALU_NOT_ENABLE:
+                break;
+            case ALU_LOGIC_XOR:
+                _LOGIC_XOR();
                 break;
             default:
                 break;
@@ -136,6 +141,10 @@ namespace base {
     void AluBase::_DIRECT_TRANSMISSION() {
         _output_bus_A_ -> write(_input_bus_A_ -> read());
         _output_bus_B_ -> write(_input_bus_B_ -> read());
+    }
+
+    void AluBase::_LOGIC_XOR() {
+        _output_bus_A_ -> write(_input_bus_A_ -> read() ^ _input_bus_B_ -> read());
     }
 }
 

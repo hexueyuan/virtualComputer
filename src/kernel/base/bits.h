@@ -60,5 +60,22 @@ namespace base {
         }
         return _str;
     }
+
+    //字符串转比特值
+    //in: _str(string)字符串
+    //out: _num(unsigned long)
+    //_str只读取前64位数据，超过部分会截断
+    unsigned long _str_bin(string _str) {
+        unsigned long _num = 0;
+        int _size = (_str.length() < 64)?_str.length():64;
+
+        for (int i = 0; i < _size; ++i) {
+            if (_str[i] != '0' && _str[i] != '1') {
+                return 0;
+            }
+            _num = (_num << 1) + (_str[i] - '0');
+        }
+        return _num;
+    }
 }
 #endif

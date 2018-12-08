@@ -66,6 +66,7 @@ namespace base {
         _control_bus_ = _control_;
         _data_width_ = _d_width;
         _instruction_active_bits_ = _ins_active_bits_;
+        _register_ = 0;
     }
 
     RegisterBase::~RegisterBase() {};
