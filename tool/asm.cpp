@@ -80,9 +80,11 @@ bool removeFile(const string& name) {
 bool isMemoryAddress(string _str) {
     int _size = _str.length();
     for (int i = 1; i < _size - 1; ++i) {
-        
+        if (_str[i] != '0' && _str[i] != '1') {
+            return false;
+        }
     }
-    return _str[0] == '[' && _str[_str.length() - 1] == ']';
+    return _str[0] == '[' && _str[_size - 1] == ']';
 }
 
 void _error(string _err) {
@@ -152,7 +154,7 @@ string asmcode(string asmins, int __line__) {
         _op1_value = _register_map[op1];
     } else if (isMemoryAddress(op1)) {
         _op1_type = ADDRESS_MEMORY;
-        _op1_value = _str_number_(op1.substr(1, op1.length() - 2));
+        _op1_value = base::_str_bin(op1.substr(1, op1.length() - 2));
     } else {
         _error(string("Invalid operate of `") + op1 + string("` in ") + _number_str(__line__) + " line.");
         _fatal = true;
@@ -167,7 +169,7 @@ string asmcode(string asmins, int __line__) {
         _op2_value = _register_map[op2];
     } else if (isMemoryAddress(op2)) {
         _op2_type = ADDRESS_MEMORY;
-        _op2_value = _str_number_(op2.substr(1, op2.length() - 2));
+        _op2_value = base::_str_bin(op2.substr(1, op2.length() - 2));
     } else {
         _error(string("Invalid operate of `") + op2 + string("` in ") + _number_str(__line__) + " line.");
         _fatal = true;
