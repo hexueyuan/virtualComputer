@@ -1,10 +1,7 @@
-#include "options.h"
-#include "bus.h"
-#include "bits.h"
-
-
 #ifndef __MUTIL_REGISTER_H__
 #define __MUTIL_REGISTER_H__
+
+#include "base.h"
 
 #define MUTIL_REGISTER_NOT_ENABLE   0b000   //空指令，寄存器无动作
 #define MUTIL_REGISTER_READ_A       0b100   //从输入总线A读取数据
@@ -80,20 +77,20 @@ namespace base {
 
     void MutilRegisterBase::operator()() {
         unsigned long _offset = base::_active_bits_offset(_instruction_active_bits_);
-        unsigned long _instruction_ = (((_control_bus_ -> read()) & _instruction_active_bits_) >> _offset);
+        unsigned long _instruction_ = (((_control_bus_ -> out()) & _instruction_active_bits_) >> _offset);
 
         switch (_instruction_) {
             case MUTIL_REGISTER_READ_A:
-                _register_ = (_input_bus_A_ -> read()) & (((unsigned long)1 << (_data_width_)) - 1);
+                _register_ = (_input_bus_A_ -> out()) & (((unsigned long)1 << (_data_width_)) - 1);
                 break;
             case MUTIL_REGISTER_READ_B:
-                _register_ = (_input_bus_B_ -> read()) & (((unsigned long)1 << (_data_width_)) - 1);
+                _register_ = (_input_bus_B_ -> out()) & (((unsigned long)1 << (_data_width_)) - 1);
                 break;
             case MUTIL_REGISTER_WRITE_A:
-                _output_bus_A_ -> write(_register_);
+                _output_bus_A_ -> in(_register_);
                 break;
             case MUTIL_REGISTER_WRITE_B:
-                _output_bus_B_ -> write(_register_);
+                _output_bus_B_ -> in(_register_);
                 break;
             case MUTIL_REGISTER_NOT_ENABLE:
                 break;
@@ -108,18 +105,18 @@ namespace base {
 
     void MutilRegisterBase::debug(string tab) {
         unsigned long _offset = base::_active_bits_offset(_instruction_active_bits_);
-        unsigned long _instruction_ = (((_control_bus_ -> read()) & _instruction_active_bits_) >> _offset);
+        unsigned long _instruction_ = (((_control_bus_ -> out()) & _instruction_active_bits_) >> _offset);
         unsigned long _size = base::_active_bits_size(_instruction_active_bits_);
         string _space(tab.length(), ' ');
-        cout << tab << "Register(" + _name_ + ") instruction: " << base::_bin_str(_instruction_, _size) << endl;
+        //cout << tab << "Register(" + _name_ + ") instruction: " << base::_bin_str(_instruction_, _size) << endl;
         cout << _space << "Register(" + _name_ + ") value: " << base::_bin_str(_register_, _data_width_) << endl;
-        cout << _space << "Register(" + _name_ + ") instruction_offset: " << _instruction_active_bits_ << endl;
-        cout << _space << "Register(" + _name_ + ") data_width: " << _data_width_ << endl;
-        cout << _space << "Register(" + _name_ + ") control_bus: " << _control_bus_ -> name() << endl;
-        cout << _space << "Register(" + _name_ + ") input_bus_A: " << _input_bus_A_ -> name() << endl;
-        cout << _space << "Register(" + _name_ + ") input_bus_B: " << _input_bus_B_ -> name() << endl;
-        cout << _space << "Register(" + _name_ + ") output_bus_A: " << _output_bus_A_ -> name() << endl;
-        cout << tab << "Register(" + _name_ + ") output_bus_B: " << _output_bus_B_ -> name() << endl;
+        //cout << _space << "Register(" + _name_ + ") instruction_offset: " << _instruction_active_bits_ << endl;
+        //cout << _space << "Register(" + _name_ + ") data_width: " << _data_width_ << endl;
+        //cout << _space << "Register(" + _name_ + ") control_bus: " << _control_bus_ -> name() << endl;
+        //cout << _space << "Register(" + _name_ + ") input_bus_A: " << _input_bus_A_ -> name() << endl;
+        //cout << _space << "Register(" + _name_ + ") input_bus_B: " << _input_bus_B_ -> name() << endl;
+        //cout << _space << "Register(" + _name_ + ") output_bus_A: " << _output_bus_A_ -> name() << endl;
+        //cout << tab << "Register(" + _name_ + ") output_bus_B: " << _output_bus_B_ -> name() << endl;
     }
 
     string MutilRegisterBase::name() {

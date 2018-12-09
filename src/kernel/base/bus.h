@@ -1,7 +1,10 @@
-#include "options.h"
-
 #ifndef __BUS_H__
 #define __BUS_H__
+
+#include <string>
+using std::string;
+
+#include "bits.h"
 
 //总线类，用于连接两个部件，部件之间不能直接通讯，必须通过总线，其中总线采用被动
 //传输数据，一方主动写入，另一方如果没有读取该数据则数据不会被使用，另外，总线传
@@ -15,12 +18,12 @@ namespace base {
             ~BusBase();
 
             //一端写入
-            void write(unsigned long _data_);
+            void in(unsigned long _data_);
             //一端读取
-            unsigned long read();
+            unsigned long out();
 
             //调试函数，输出当前总线环境数据
-            void debug(string tab);
+            void debug(string prefix = "");
             //总线命名函数，可以定义总线名称，用于调试定位
             void named(string _name_);
             //返回总线宽度
@@ -40,16 +43,16 @@ namespace base {
     BusBase::BusBase(unsigned long _width_): _bus_width_(_width_){}
     BusBase::~BusBase() {}
 
-    void BusBase::write(unsigned long _data_) {
+    void BusBase::in(unsigned long _data_) {
         _bus_data_ = _data_ & (((unsigned long)1 << _bus_width_) - 1);
     }
 
-    unsigned long BusBase::read() {
+    unsigned long BusBase::out() {
         return _bus_data_ & (((unsigned long)1 << _bus_width_) - 1);
     }
 
-    void BusBase::debug(string tab = "") {
-        cout << tab << "Bus(" + _bus_name_ + ") data: " << _bin_str(_bus_data_, _bus_width_) << endl;
+    void BusBase::debug(string prefix) {
+        cout << prefix << "Bus(" + _bus_name_ + ") data: " << base::_bin_str(_bus_data_, _bus_width_) << endl;
     }
 
     void BusBase::named(string _name_) {

@@ -1,8 +1,7 @@
-#include "options.h"
-#include "bus.h"
-
 #ifndef __SELECTOR_H__
 #define __SELECTOR_H__
+
+#include "base.h"
 
 /*selector.h*/
 #define SELECTOR_NOT_ENABLE     0b0000  //选择器不执行指令
@@ -85,33 +84,33 @@ namespace base {
     SelectorBase::~SelectorBase() {}
 
     void SelectorBase::operator()() {
-        _instruction_ = base::_extract_instruction(_control_bus_ -> read(), _instruction_active_bits_);
+        _instruction_ = base::_extract_instruction(_control_bus_ -> out(), _instruction_active_bits_);
         //_instruction_ = (_control_bus_ -> read()) >> _instruction_offset_;
 
         switch(_instruction_) {
             case SELECTOR_ROUTE_0:
-                _output_bus_ -> write(_input_bus_0_ -> read());
+                _output_bus_ -> in(_input_bus_0_ -> out());
                 break;
             case SELECTOR_ROUTE_1:
-                _output_bus_ -> write(_input_bus_1_ -> read());
+                _output_bus_ -> in(_input_bus_1_ -> out());
                 break;
             case SELECTOR_ROUTE_2:
-                _output_bus_ -> write(_input_bus_2_ -> read());
+                _output_bus_ -> in(_input_bus_2_ -> out());
                 break;
             case SELECTOR_ROUTE_3:
-                _output_bus_ -> write(_input_bus_3_ -> read());
+                _output_bus_ -> in(_input_bus_3_ -> out());
                 break;
             case SELECTOR_ROUTE_4:
-                _output_bus_ -> write(_input_bus_4_ -> read());
+                _output_bus_ -> in(_input_bus_4_ -> out());
                 break;
             case SELECTOR_ROUTE_5:
-                _output_bus_ -> write(_input_bus_5_ -> read());
+                _output_bus_ -> in(_input_bus_5_ -> out());
                 break;
             case SELECTOR_ROUTE_6:
-                _output_bus_ -> write(_input_bus_6_ -> read());
+                _output_bus_ -> in(_input_bus_6_ -> out());
                 break;
             case SELECTOR_ROUTE_7:
-                _output_bus_ -> write(_input_bus_7_ -> read());
+                _output_bus_ -> in(_input_bus_7_ -> out());
                 break;
             case SELECTOR_NOT_ENABLE:
                 break;
@@ -126,7 +125,7 @@ namespace base {
 
     void SelectorBase::debug(string tab) {
         string space(tab.length(), ' ');
-        unsigned long _instruction = base::_extract_instruction(_control_bus_ -> read(), _instruction_active_bits_);
+        unsigned long _instruction = base::_extract_instruction(_control_bus_ -> out(), _instruction_active_bits_);
         cout << tab << "Selector(" + _name_ + ") instruction: " << \
             base::_bin_str(_instruction, base::_active_bits_size(_instruction_active_bits_)) << endl;
         cout << space << "Selector(" + _name_ + ") control bus: " << _control_bus_ -> name() << endl;

@@ -1,9 +1,6 @@
-#include "base/bus.h"
-#include "base/options.h"
-#include "memory.h"
-
-#ifndef __MEMORY_ROM__
-#define __MEMORY_ROM__
+#ifndef __MEMORY_ROM_H__
+#define __MEMORY_ROM_H__
+#include "options.h"
 
 namespace compute {
     class MemoryROM: public MemoryBase {
@@ -40,8 +37,8 @@ namespace compute {
         };
         int _size = 6;
         for (int i = 0; i < _size; ++i) {
-            _address_bus_ -> write(i);
-            _input_data_bus_ -> write(_ins_list[i]);
+            _address_bus_ -> in(i);
+            _input_data_bus_ -> in(_ins_list[i]);
             _write();
         }
     }

@@ -1,22 +1,9 @@
+#ifndef __OPTIONS_H__
+#define __OPTIONS_H__
 #include <iostream>
 #include <string>
 
-#include "base/bits.h"
-#include "base/alu.h"
-#include "base/bus.h"
-#include "base/mutil_register.h"
-#include "base/register.h"
-#include "base/selector.h"
-#include "base/shiftor.h"
-#include "cpu.h"
-#include "instruction_generator.h"
-#include "memory.h"
-#include "memory_rom.h"
-
 using namespace std;
-
-#ifndef __OPTIONS_H__
-#define __OPTIONS_H__
 
 #define DATA_BITS_WIDTH                 (unsigned long)32   //数据宽度
 #define INSIDE_CONTROL_BITS_WIDTH       (unsigned long)39 //内控制总线宽度
@@ -100,22 +87,5 @@ using namespace std;
 #define PSW_EVEN            (unsigned long)0b0000000000010000
 #define PSW_OVERFLOW        (unsigned long)0b0000000000100000
 
-unsigned long _inside_ins_nop_ = (base::_generate_instruction(SHIFTOR_NOT_ENABLE, SHIFTOR_ACTIVE_BITS) | 
-                            base::_generate_instruction(ALU_NOT_ENABLE, ALU_ACTIVE_BITS) |
-                            base::_generate_instruction(SELECTOR_NOT_ENABLE, SELECTOR_A_ACTIVE_BITS) |
-                            base::_generate_instruction(SELECTOR_NOT_ENABLE, SELECTOR_B_ACTIVE_BITS) |
-                            base::_generate_instruction(REGISTER_NOT_ENABLE, REGISTER_0_ACTIVE_BITS) |
-                            base::_generate_instruction(REGISTER_NOT_ENABLE, REGISTER_1_ACTIVE_BITS) |
-                            base::_generate_instruction(REGISTER_NOT_ENABLE, REGISTER_2_ACTIVE_BITS) |
-                            base::_generate_instruction(REGISTER_NOT_ENABLE, REGISTER_3_ACTIVE_BITS) |
-                            base::_generate_instruction(REGISTER_NOT_ENABLE, REGISTER_IP_ACTIVE_BITS) |
-                            base::_generate_instruction(REGISTER_NOT_ENABLE, REGISTER_PC_ACTIVE_BITS) |
-                            base::_generate_instruction(REGISTER_NOT_ENABLE, REGISTER_SP_ACTIVE_BITS) |
-                            base::_generate_instruction(REGISTER_NOT_ENABLE, REGISTER_PSW_ACTIVE_BITS) |
-                            base::_generate_instruction(REGISTER_NOT_ENABLE, REGISTER_C_ACTIVE_BITS) |
-                            base::_generate_instruction(REGISTER_NOT_ENABLE, REGISTER_D_ACTIVE_BITS) |
-                            base::_generate_instruction(MUTIL_REGISTER_NOT_ENABLE, REGISTER_MAR_ACTIVE_BITS) |
-                            base::_generate_instruction(MUTIL_REGISTER_NOT_ENABLE, REGISTER_MDR_ACTIVE_BITS));
-unsigned long _outside_ins_nop_ = 0b00;
 
 #endif

@@ -1,9 +1,8 @@
-#include <string>
-
-using std::string;
-
 #ifndef __BITS_H__
 #define __BITS_H__
+
+#include <string>
+using std::string;
 
 //基础比特位mock类，因为所有的数据在计算机中以比特位进行运算，为了进行模拟必须从底层开始模拟
 //这里考虑过c++自带的bit库，因为这个库不能很好地支持动态位长，所以我选择自己写了一个简单的库
@@ -15,6 +14,9 @@ namespace base {
     //out: _cnt(unsigned long) 有效值偏移。
     //example：func(0b0011100)=3
     unsigned long _active_bits_offset(unsigned long _active_bits) {
+        if (_active_bits == 0) {
+            return sizeof(unsigned long);
+        }
         unsigned long _cnt = 0;
         while (!((_active_bits >> _cnt) & 0b1)) ++_cnt;
         return _cnt;
@@ -25,6 +27,9 @@ namespace base {
     //out: _cnt(unsigned long) 有效值长度
     //example: func(0b0011000)=2
     unsigned long _active_bits_size(unsigned long _active_bits) {
+        if (_active_bits == 0) {
+            return 0;
+        }
         unsigned long _cnt = 0;
         _active_bits = _active_bits >> _active_bits_offset(_active_bits);
         while ((_active_bits >> _cnt) & 0b1) ++_cnt;

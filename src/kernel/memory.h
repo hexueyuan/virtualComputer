@@ -1,8 +1,12 @@
-#include "base/bus.h"
-#include "base/options.h"
+#ifndef __MEMORY_BASE_H__
+#define __MEMORY_BASE_H__
+#include <iostream>
+#include <string>
 
-#ifndef __MEMORY_BASE__
-#define __MEMORY_BASE__
+#include "base/bits.h"
+#include "base/bus.h"
+
+using namespace std;
 
 #define MEMORY_INSTRUCTION_BITS_SIZE 2
 #define MEMORY_READ 0b10
@@ -31,6 +35,9 @@ namespace compute {
 
             //执行一次当前控制总线上的指令
             void operator()();
+
+            //直接写入数据
+            void write_in(unsigned long addr, unsigned long data);
 
             //命名
             void named(string _name);
@@ -71,19 +78,19 @@ namespace compute {
     MemoryBase::~MemoryBase() {}
 
     void MemoryBase::_write() {
-        if (_address_bus_ -> read() < ((unsigned long)1 << _memory_addr_bits_width_)) {
-            _memory_[_address_bus_ -> read()] = (_input_data_bus_ -> read()) & (((unsigned long)1 << _memory_unit_bits_size_) - 1);
+        if (_address_bus_ -> out() < ((unsigned long)1 << _memory_addr_bits_width_)) {
+            _memory_[_address_bus_ -> out()] = (_input_data_bus_ -> out()) & (((unsigned long)1 << _memory_unit_bits_size_) - 1);
         }
     }
 
     void MemoryBase::_read() {
-        if (_address_bus_ -> read() < ((unsigned long)1 << _memory_addr_bits_width_)) {
-            _output_data_bus_ -> write(_memory_[_address_bus_ -> read()]);
+        if (_address_bus_ -> out() < ((unsigned long)1 << _memory_addr_bits_width_)) {
+            _output_data_bus_ -> in(_memory_[_address_bus_ -> out()]);
         }
     }
 
     void MemoryBase::operator()() {
-        _instruction_ = base::_extract_instruction(_control_bus_ -> read(), _memory_active_bits_);
+        _instruction_ = base::_extract_instruction(_control_bus_ -> out(), _memory_active_bits_);
 
         switch (_instruction_) {
             case MEMORY_READ:
@@ -104,14 +111,21 @@ namespace compute {
     }
 
     void MemoryBase::debug(unsigned long _addr, string prefix) {
+        if (_addr > (((unsigned long)1 << _memory_addr_bits_width_) - 1)) {
+            return;
+        }
         string space(prefix.length(), ' ');
 
-        cout << "Memory: " << _name_ << endl;
+        //cout << "Memory: " << _name_ << endl;
         cout << space << base::_bin_str(_addr, _memory_addr_bits_width_) << ": " << base::_bin_str(_memory_[_addr], _memory_unit_bits_size_) << endl;
-        cout << space << "Memory(" << _name_ << ") data in bus: " << _input_data_bus_ -> name() << endl;
-        cout << space << "Memory(" << _name_ << ") data out bus: " << _output_data_bus_ -> name() << endl;
-        cout << prefix << "Memory(" << _name_ << ") control bus: " << _control_bus_ -> name() << endl;
+        //cout << space << "Memory(" << _name_ << ") data in bus: " << _input_data_bus_ -> name() << endl;
+        //cout << space << "Memory(" << _name_ << ") data out bus: " << _output_data_bus_ -> name() << endl;
+        //cout << prefix << "Memory(" << _name_ << ") control bus: " << _control_bus_ -> name() << endl;
     }
+   
+   void MemoryBase::write_in(unsigned long addr, unsigned long data) {
+       _memory_[addr & (((unsigned long)1 << _memory_addr_bits_width_) - 1)] = (data & (((unsigned long)1 << _memory_unit_bits_size_) - 1));
+   }
 }
 
 #endif

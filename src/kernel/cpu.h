@@ -1,6 +1,7 @@
-#include "base/options.h"
-#include "base/bus.h"
+#ifndef __CPU_H__
+#define __CPU_H__
 
+#include "base/base.h"
 #include "base/selector.h"
 #include "base/alu.h"
 #include "base/shiftor.h"
@@ -130,3 +131,5 @@ namespace compute {
         _name_ = _name;
     }
 }
+
+#endif

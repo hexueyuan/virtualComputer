@@ -1,33 +1,35 @@
-#include <iostream>
-#include "options.h"
-#include "bus.h"
+#include <gtest/gtest.h>
+#include "base/bus.h"
 
-using namespace std;
+TEST(Test_BusBase_width, case1) {
+    unsigned long _bus_wdith = 16;
+    base::BusBase bus(_bus_wdith);
 
-int main() {
-    base::BusBase _bus1(1);
-    base::BusBase _bus2(2);
-    base::BusBase _bus3(4);
-    base::BusBase _bus4(8);
-    base::BusBase _bus5(16);
-    _bus1.named("Bus_1");
-    _bus2.named("Bus_2");
-    _bus3.named("Bus_3");
-    _bus4.named("Bus_4");
-    _bus5.named("Bus_5");
-    unsigned long _data = 0b1110110001110011;
-    _bus1.write(_data);
-    _bus2.write(_data);
-    _bus3.write(_data);
-    _bus4.write(_data);
-    _bus5.write(_data);
+    EXPECT_EQ(bus.width(), _bus_wdith);
+}
 
-    cout << "input: " << "0b" << base::_bin_str(_data, 16) << endl;
-    _bus1.debug();
-    _bus2.debug();
-    _bus3.debug();
-    _bus4.debug();
-    _bus5.debug();
+TEST(Test_BusBase_io, case2) {
+    unsigned long _bus_wdith = 16;
+    base::BusBase bus(_bus_wdith);
 
-    return 0;
+    unsigned long _case0 = 0b0011;
+    bus.in(_case0);
+    EXPECT_EQ(bus.out(), _case0);
+
+    unsigned long _case1 = 0b111111111111111111;
+    bus.in(_case1);
+    EXPECT_NE(bus.out(), _case1);
+}
+
+TEST(Test_BusBase_named, case1) {
+    unsigned long _bus_wdith = 16;
+    base::BusBase bus(_bus_wdith);
+
+    bus.named("TestBus");
+    EXPECT_EQ(bus.name(), string("TestBus"));
+}
+
+GTEST_API_ int main(int argc, char** argv) {
+    testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }

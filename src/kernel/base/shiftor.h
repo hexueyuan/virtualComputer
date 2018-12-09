@@ -1,8 +1,7 @@
-#include "options.h"
-#include "bus.h"
-
 #ifndef __SHIFTOR_H__
 #define __SHIFTOR_H__
+
+#include "base.h"
 
 /*shiftor.h*/
 #define SHIFTOR_NOT_ENABLE          0b00    //移位器不执行指令
@@ -61,7 +60,7 @@ namespace base {
     ShiftorBase::~ShiftorBase() {}
 
     void ShiftorBase::operator()() {
-        _instruction_ = _extract_instruction(_control_bus_ -> read(), _instruction_active_bits_);
+        _instruction_ = _extract_instruction(_control_bus_ -> out(), _instruction_active_bits_);
 
         switch (_instruction_) {
             case SHIFTOR_NOT_ENABLE:
@@ -85,15 +84,15 @@ namespace base {
     }
 
     void ShiftorBase::_left_shift() {
-        _output_bus_ -> write((_input_bus_A_ -> read()) << (_input_bus_B_ -> read()));
+        _output_bus_ -> in((_input_bus_A_ -> out()) << (_input_bus_B_ -> out()));
     }
 
     void ShiftorBase::_right_shift() {
-        _output_bus_ -> write((_input_bus_A_ -> read()) >> (_input_bus_B_ -> read()));
+        _output_bus_ -> in((_input_bus_A_ -> out()) >> (_input_bus_B_ -> out()));
     }
 
     void ShiftorBase::_direct_transmission() {
-        _output_bus_ -> write(_input_bus_A_ -> read());
+        _output_bus_ -> in(_input_bus_A_ -> out());
     }
 
     void ShiftorBase::debug(string prefix) {

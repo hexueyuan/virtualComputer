@@ -1,10 +1,7 @@
-#include "selector.h"
-
-#include "options.h"
-#include "bits.h"
-
 #ifndef __ALU_H__
 #define __ALU_H__
+
+#include "base.h"
 
 /*alu.h*/
 #define ALU_NOT_ENABLE          0b000   //ALU不执行指令
@@ -79,7 +76,7 @@ namespace base {
     AluBase::~AluBase() {}
 
     void AluBase::operator()() {
-        _instruction_ = _extract_instruction(_control_bus_ -> read(), _instruction_active_bits_);
+        _instruction_ = _extract_instruction(_control_bus_ -> out(), _instruction_active_bits_);
 
         switch(_instruction_) {
             case ALU_ARITHMETIC_ADD:
@@ -123,28 +120,28 @@ namespace base {
     }
 
     void AluBase::_ARITHMETIC_ADD() {
-        _output_bus_A_ -> write(_input_bus_A_ -> read() + _input_bus_B_ -> read());
+        _output_bus_A_ -> in(_input_bus_A_ -> out() + _input_bus_B_ -> out());
     }
 
     void AluBase::_LOGIC_AND() {
-        _output_bus_A_ -> write(_input_bus_A_ -> read() & _input_bus_B_ -> read());
+        _output_bus_A_ -> in(_input_bus_A_ -> out() & _input_bus_B_ -> out());
     }
 
     void AluBase::_LOGIC_OR() {
-        _output_bus_A_ -> write(_input_bus_A_ -> read() | _input_bus_B_ -> read());
+        _output_bus_A_ -> in(_input_bus_A_ -> out() | _input_bus_B_ -> out());
     }
 
     void AluBase::_LOGIC_NOT() {
-        _output_bus_A_ -> write(~(_input_bus_A_ -> read()));
+        _output_bus_A_ -> in(~(_input_bus_A_ -> out()));
     }
 
     void AluBase::_DIRECT_TRANSMISSION() {
-        _output_bus_A_ -> write(_input_bus_A_ -> read());
-        _output_bus_B_ -> write(_input_bus_B_ -> read());
+        _output_bus_A_ -> in(_input_bus_A_ -> out());
+        _output_bus_B_ -> in(_input_bus_B_ -> out());
     }
 
     void AluBase::_LOGIC_XOR() {
-        _output_bus_A_ -> write(_input_bus_A_ -> read() ^ _input_bus_B_ -> read());
+        _output_bus_A_ -> in(_input_bus_A_ -> out() ^ _input_bus_B_ -> out());
     }
 }
 

@@ -1,9 +1,7 @@
-#include "options.h"
-#include "bus.h"
-#include "bits.h"
-
 #ifndef __REGISTER_H__
 #define __REGISTER_H__
+
+#include "base.h"
 
 /*register*/
 #define REGISTER_NOT_ENABLE     0b00    //寄存器不执行任何指令
@@ -47,12 +45,10 @@ namespace base {
             
             //寄存器数据
             unsigned long _register_;
-            //bitset<REGISTER_BITS_SIZE> _register_;
             //寄存器数据宽度
             unsigned long _data_width_;
             //指令
             unsigned long _instruction_;
-            //bitset<REGISTER_INSTRUCTION_BITS_SIZE> _instruction_;
             //指令偏移
             unsigned long _instruction_active_bits_;
             //命名
@@ -73,14 +69,14 @@ namespace base {
 
     void RegisterBase::operator()() {
         unsigned long _offset = base::_active_bits_offset(_instruction_active_bits_);
-        _instruction_ = (((_control_bus_ -> read()) & _instruction_active_bits_) >> _offset);
+        _instruction_ = (((_control_bus_ -> out()) & _instruction_active_bits_) >> _offset);
 
         switch (_instruction_) {
             case REGISTER_READ:
-                _register_ = (_input_bus_ -> read()) & (((unsigned long)1 << (_data_width_)) - 1);
+                _register_ = (_input_bus_ -> out()) & (((unsigned long)1 << (_data_width_)) - 1);
                 break;
             case REGISTER_WRITE:
-                _output_bus_ -> write(_register_);
+                _output_bus_ -> in(_register_);
                 break;
             case REGISTER_NOT_ENABLE:
                 break;
@@ -96,7 +92,7 @@ namespace base {
     void RegisterBase::debug(string tab) {
         unsigned long _size = base::_active_bits_size(_instruction_active_bits_);
         string _space(tab.length(), ' ');
-        cout << tab << "Register(" + _name_ + ") instruction: " << base::_bin_str(_instruction_, _size) << endl;
+        //cout << tab << "Register(" + _name_ + ") instruction: " << base::_bin_str(_instruction_, _size) << endl;
         cout << _space << "Register(" + _name_ + ") value: " << base::_bin_str(_register_, _data_width_) << endl;
         //cout << _space << "Register(" + _name_ + ") instruction_offset: " << _instruction_active_bits_ << endl;
         //cout << _space << "Register(" + _name_ + ") data_width: " << _data_width_ << endl;
