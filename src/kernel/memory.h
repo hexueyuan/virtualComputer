@@ -1,6 +1,9 @@
 #include "base/bus.h"
 #include "base/options.h"
 
+#ifndef __MEMORY_BASE__
+#define __MEMORY_BASE__
+
 #define MEMORY_INSTRUCTION_BITS_SIZE 2
 #define MEMORY_READ 0b10
 #define MEMORY_WRITE 0b11
@@ -21,6 +24,7 @@ namespace compute {
             //      _unit_bsize 存储单元字长 由于使用unsigned long来mock的，所以最大支持64位, 也就是8bytes
             //      _addr_bits_width 地址宽度 存储器空间 = 存储单元字长 * 存储单元数量 = 存储单元字长 * (2 ^ 地址宽度)
             //      _mem_active_bits 有效指令位
+            MemoryBase();
             MemoryBase(base::BusBase* _input_, base::BusBase* _output_, base::BusBase* _control_, 
                         base::BusBase* _addr_, unsigned long _unit_bsize, unsigned long _addr_bits_width, unsigned long _mem_active_bits);
             ~MemoryBase();
@@ -33,7 +37,7 @@ namespace compute {
             //调试
             void debug(unsigned long _addr, string prefix = "");
 
-        private:
+        protected:
             base::BusBase* _input_data_bus_;
             base::BusBase* _output_data_bus_;
             base::BusBase* _address_bus_;
@@ -51,6 +55,7 @@ namespace compute {
             void _read();
     };
 
+    MemoryBase::MemoryBase() {}
     MemoryBase::MemoryBase(base::BusBase* _input_, base::BusBase* _output_, base::BusBase* _control_, 
                             base::BusBase* _addr_, unsigned long _unit_bsize, unsigned long _addr_bits_width, unsigned long _mem_active_bits) {
         _input_data_bus_ = _input_;
@@ -108,3 +113,5 @@ namespace compute {
         cout << prefix << "Memory(" << _name_ << ") control bus: " << _control_bus_ -> name() << endl;
     }
 }
+
+#endif

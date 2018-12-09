@@ -98,11 +98,11 @@ namespace base {
         string _space(tab.length(), ' ');
         cout << tab << "Register(" + _name_ + ") instruction: " << base::_bin_str(_instruction_, _size) << endl;
         cout << _space << "Register(" + _name_ + ") value: " << base::_bin_str(_register_, _data_width_) << endl;
-        cout << _space << "Register(" + _name_ + ") instruction_offset: " << _instruction_active_bits_ << endl;
-        cout << _space << "Register(" + _name_ + ") data_width: " << _data_width_ << endl;
-        cout << _space << "Register(" + _name_ + ") control_bus: " << _control_bus_ -> name() << endl;
-        cout << _space << "Register(" + _name_ + ") input_bus: " << _input_bus_ -> name() << endl;
-        cout << tab << "Register(" + _name_ + ") output_bus: " << _output_bus_ -> name() << endl;
+        //cout << _space << "Register(" + _name_ + ") instruction_offset: " << _instruction_active_bits_ << endl;
+        //cout << _space << "Register(" + _name_ + ") data_width: " << _data_width_ << endl;
+        //cout << _space << "Register(" + _name_ + ") control_bus: " << _control_bus_ -> name() << endl;
+        //cout << _space << "Register(" + _name_ + ") input_bus: " << _input_bus_ -> name() << endl;
+        //cout << tab << "Register(" + _name_ + ") output_bus: " << _output_bus_ -> name() << endl;
     }
 
     string RegisterBase::name() {

@@ -13,5 +13,7 @@ int main() {
     cout << "Except: " << "0011010" << endl;
     cout << "Test: " << base::_bin_str(base::_extract_instruction(0b0101001110001100, 0b0001111110000000), 6) << endl;
     cout << "Except: " << "100111" << endl;
+    cout << "Test: " << base::_str_bin("11111111111111111111111111111111") << endl;
+    cout << "Except: " << ((unsigned long)1 << 32) - 1 << endl;
     return 0;
 }

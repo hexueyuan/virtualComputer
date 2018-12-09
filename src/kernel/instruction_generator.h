@@ -1,113 +1,8 @@
-#include "base/options.h"
-#include "base/register.h"
-#include "base/mutil_register.h"
-#include "base/bus.h"
-#include "base/bits.h"
-#include "memory.h"
-#include "cpu.h"
+#include "options.h"
 
 #ifndef _MIRCO_INSTRUCTION_H__
 #define _MIRCO_INSTRUCTION_H__
 
-#define DATA_BITS_WIDTH                 (unsigned long)32   //数据宽度
-#define INSIDE_CONTROL_BITS_WIDTH       (unsigned long)39 //内控制总线宽度
-#define OUTSIDE_ADDRESS_BITS_WIDTH      (unsigned long)12 //外地址总线宽度
-#define OUTSIDE_DATA_BITS_WIDTH         (unsigned long)32 //外数据总线宽度
-#define OUTSIZE_CONTROL_BITS_WIDTH      (unsigned long)2 //外控制总线宽度
-#define MEMORY_UNIT_BITS_SIZE           (unsigned long)32    //存储单元大小
-#define INSTRUCTION_BITS_WIDTH          (unsigned long)32   //指令长度
-
-//内控制总线指令有效位定义
-#define SHIFTOR_ACTIVE_BITS             (unsigned long)0b110000000000000000000000000000000000000
-#define ALU_ACTIVE_BITS                 (unsigned long)0b001110000000000000000000000000000000000
-#define SELECTOR_A_ACTIVE_BITS          (unsigned long)0b000001111000000000000000000000000000000
-#define SELECTOR_B_ACTIVE_BITS          (unsigned long)0b000000000111100000000000000000000000000
-#define REGISTER_0_ACTIVE_BITS          (unsigned long)0b000000000000011000000000000000000000000
-#define REGISTER_1_ACTIVE_BITS          (unsigned long)0b000000000000000110000000000000000000000
-#define REGISTER_2_ACTIVE_BITS          (unsigned long)0b000000000000000001100000000000000000000
-#define REGISTER_3_ACTIVE_BITS          (unsigned long)0b000000000000000000011000000000000000000
-#define REGISTER_IP_ACTIVE_BITS         (unsigned long)0b000000000000000000000110000000000000000
-#define REGISTER_PC_ACTIVE_BITS         (unsigned long)0b000000000000000000000001100000000000000
-#define REGISTER_SP_ACTIVE_BITS         (unsigned long)0b000000000000000000000000011000000000000
-#define REGISTER_PSW_ACTIVE_BITS        (unsigned long)0b000000000000000000000000000110000000000
-#define REGISTER_C_ACTIVE_BITS          (unsigned long)0b000000000000000000000000000001100000000
-#define REGISTER_D_ACTIVE_BITS          (unsigned long)0b000000000000000000000000000000011000000
-#define REGISTER_MAR_ACTIVE_BITS        (unsigned long)0b000000000000000000000000000000000111000
-#define REGISTER_MDR_ACTIVE_BITS        (unsigned long)0b000000000000000000000000000000000000111
-
-//外控制总线指令有效位定义
-#define MEMORY_ACTIVE_BITS              (unsigned long)0b11
-
-//指令集
-#define INSTRUCTION_NOP                 (unsigned long)0b0000
-#define INSTRUCTION_MOV                 (unsigned long)0b0001
-#define INSTRUCTION_ADD                 (unsigned long)0b0010
-#define INSTRUCTION_ZERO                (unsigned long)0b0011
-#define INSTRUCTION_LSFT                (unsigned long)0b0100
-#define INSTRUCTION_RSFT                (unsigned long)0b0101
-#define INSTRUCTION_AND                 (unsigned long)0b0110
-#define INSTRUCTION_OR                  (unsigned long)0b0111
-#define INSTRUCTION_NOT                 (unsigned long)0b1000
-#define INSTRUCTION_XOR                 (unsigned long)0b1001
-#define INSTRUCTION_CMP                 (unsigned long)0b1010
-#define INSTRUCTION_JMP                 (unsigned long)0b1011
-#define INSTRUCTION_JMPP                (unsigned long)0b1100
-#define INSTRUCTION_JMPN                (unsigned long)0b1101
-#define INSTRUCTION_JMPZ                (unsigned long)0b1110
-#define INSTRUCTION_CONTAIN             (unsigned long)0b1111
-
-//寻址方式
-#define ADDRESS_REGISTER                (unsigned long)0b00
-#define ADDRESS_NUMBER                  (unsigned long)0b01
-#define ADDRESS_MEMORY                  (unsigned long)0b10
-#define ADDRESS_CONTAIN                 (unsigned long)0b11
-
-//指令有效位
-#define INSTRUCTION_TYPE                    (unsigned long)0b11110000000000000000000000000000
-#define OPERATE_NUMBER_1_ADDRESS_METHOD     (unsigned long)0b00001100000000000000000000000000
-#define OPERATE_NUMBER_1                    (unsigned long)0b00000011111111111100000000000000
-#define OPERATE_NUMBER_2_ADDRESS_METHOD     (unsigned long)0b00000000000000000011000000000000
-#define OPERATE_NUMBER_2                    (unsigned long)0b00000000000000000000111111111111
-
-//寄存器编号
-#define REGISTER_0      (unsigned long)0b000000000000
-#define REGISTER_1      (unsigned long)0b000000000001
-#define REGISTER_2      (unsigned long)0b000000000010
-#define REGISTER_3      (unsigned long)0b000000000011
-#define REGISTER_IP     (unsigned long)0b000000000100
-#define REGISTER_PC     (unsigned long)0b000000000101
-#define REGISTER_SP     (unsigned long)0b000000000110
-#define REGISTER_C      (unsigned long)0b000000000111
-#define REGISTER_D      (unsigned long)0b000000001000
-#define REGISTER_MAR    (unsigned long)0b000000001001
-#define REGISTER_MDR    (unsigned long)0b000000001010
-#define REGISTER_PSW    (unsigned long)0b000000001011
-
-//PSW有效位
-#define PSW_POSITIVE        (unsigned long)0b0000000000000001
-#define PSW_NAGITIVE        (unsigned long)0b0000000000000010
-#define PSW_ZERO            (unsigned long)0b0000000000000100
-#define PSW_ODD             (unsigned long)0b0000000000001000
-#define PSW_EVEN            (unsigned long)0b0000000000010000
-#define PSW_OVERFLOW        (unsigned long)0b0000000000100000
-
-unsigned long _inside_ins_nop_ = (base::_generate_instruction(SHIFTOR_NOT_ENABLE, SHIFTOR_ACTIVE_BITS) | 
-                            base::_generate_instruction(ALU_NOT_ENABLE, ALU_ACTIVE_BITS) |
-                            base::_generate_instruction(SELECTOR_NOT_ENABLE, SELECTOR_A_ACTIVE_BITS) |
-                            base::_generate_instruction(SELECTOR_NOT_ENABLE, SELECTOR_B_ACTIVE_BITS) |
-                            base::_generate_instruction(REGISTER_NOT_ENABLE, REGISTER_0_ACTIVE_BITS) |
-                            base::_generate_instruction(REGISTER_NOT_ENABLE, REGISTER_1_ACTIVE_BITS) |
-                            base::_generate_instruction(REGISTER_NOT_ENABLE, REGISTER_2_ACTIVE_BITS) |
-                            base::_generate_instruction(REGISTER_NOT_ENABLE, REGISTER_3_ACTIVE_BITS) |
-                            base::_generate_instruction(REGISTER_NOT_ENABLE, REGISTER_IP_ACTIVE_BITS) |
-                            base::_generate_instruction(REGISTER_NOT_ENABLE, REGISTER_PC_ACTIVE_BITS) |
-                            base::_generate_instruction(REGISTER_NOT_ENABLE, REGISTER_SP_ACTIVE_BITS) |
-                            base::_generate_instruction(REGISTER_NOT_ENABLE, REGISTER_PSW_ACTIVE_BITS) |
-                            base::_generate_instruction(REGISTER_NOT_ENABLE, REGISTER_C_ACTIVE_BITS) |
-                            base::_generate_instruction(REGISTER_NOT_ENABLE, REGISTER_D_ACTIVE_BITS) |
-                            base::_generate_instruction(MUTIL_REGISTER_NOT_ENABLE, REGISTER_MAR_ACTIVE_BITS) |
-                            base::_generate_instruction(MUTIL_REGISTER_NOT_ENABLE, REGISTER_MDR_ACTIVE_BITS));
-unsigned long _outside_ins_nop_ = 0b00;
 //一个CPU、一个主存、四个通用寄存器、八个特殊寄存器、单条内数据总线、单条内控制总线
 //单条外数据总线、单条外控制总线、单条外地址总线
 
@@ -132,10 +27,16 @@ namespace compute {
     class InstructionGeneratorBase {
         public:
             //
-            InstructionGeneratorBase();
+            InstructionGeneratorBase(base::RegisterBase* _r0_, base::RegisterBase* _r1_,
+                                    base::RegisterBase* _r2_, base::RegisterBase* _r3_,
+                                    base::RegisterBase* _ip_, base::RegisterBase* _pc_,
+                                    base::RegisterBase* _sp_, base::RegisterBase* _c_,
+                                    base::RegisterBase* _d_, base::RegisterBase* _mar_,
+                                    base::RegisterBase* _mdr, base::RegisterBase* _psw_,
+                                    compute::CPU* _cpu_, compute::MemoryROM* _mem_);
             ~InstructionGeneratorBase();
             
-            //执行传入的汇编指令
+            //执行PC地址指向的一条指令
             void operator()();
 
             //
@@ -143,7 +44,8 @@ namespace compute {
         
         private:
             compute::CPU* _CPU_;
-            compute::MemoryBase* _memory_;
+            //compute::MemoryBase* _memory_;
+            compute::MemoryROM* _memory_;
             
             base::RegisterBase* _R0_;
             base::RegisterBase* _R1_;
@@ -177,16 +79,6 @@ namespace compute {
             //从PC寄存器中指出的地址里取出指令到IP寄存器中
             //PC+1
             void _load_instruction();
-            //微指令生成器解析IP中的指令并生成微指令
-            void _analysis_instruction();
-            //将指令第一个操作数放到选择器A
-            void _ready_op_1();
-            //将指令第二个操作数放到选择器B
-            void _ready_op_2();
-            //计算
-            void _calculate();
-            //存放计算结果
-            void _store_answer();
 
             /*指令执行阶段*/
             /*1.从PC中取指令 存放到IP*/
@@ -214,7 +106,13 @@ namespace compute {
             void _JMPN(unsigned long _ins);
    };
 
-   InstructionGeneratorBase::InstructionGeneratorBase() {
+   InstructionGeneratorBase::InstructionGeneratorBase(base::RegisterBase* _r0_, base::RegisterBase* _r1_,
+                                                    base::RegisterBase* _r2_, base::RegisterBase* _r3_,
+                                                    base::RegisterBase* _ip_, base::RegisterBase* _pc_,
+                                                    base::RegisterBase* _sp_, base::RegisterBase* _c_,
+                                                    base::RegisterBase* _d_, base::RegisterBase* _mar_,
+                                                    base::RegisterBase* _mdr, base::RegisterBase* _psw_,
+                                                    compute::CPU* _cpu_, compute::MemoryROM* _mem_) {
         //创建内总线
         _inside_data_bus_ = new base::BusBase(DATA_BITS_WIDTH);
         _inside_data_bus_ -> named("inside_data_bus");
@@ -232,71 +130,30 @@ namespace compute {
         _outside_control_bus_ = new base::BusBase(OUTSIZE_CONTROL_BITS_WIDTH);
         _outside_control_bus_ -> named("outside_control_bus");
 
-        //创建寄存器组
-        _R0_ = new base::RegisterBase(_inside_data_bus_, _inside_data_bus_, _inside_control_bus_, DATA_BITS_WIDTH, REGISTER_0_ACTIVE_BITS);
-        _R1_ = new base::RegisterBase(_inside_data_bus_, _inside_data_bus_, _inside_control_bus_, DATA_BITS_WIDTH, REGISTER_1_ACTIVE_BITS);
-        _R2_ = new base::RegisterBase(_inside_data_bus_, _inside_data_bus_, _inside_control_bus_, DATA_BITS_WIDTH, REGISTER_2_ACTIVE_BITS);
-        _R3_ = new base::RegisterBase(_inside_data_bus_, _inside_data_bus_, _inside_control_bus_, DATA_BITS_WIDTH, REGISTER_3_ACTIVE_BITS);
-        _IP_ = new base::RegisterBase(_inside_data_bus_, _inside_data_bus_, _inside_control_bus_, DATA_BITS_WIDTH, REGISTER_IP_ACTIVE_BITS);
-        _PC_ = new base::RegisterBase(_inside_data_bus_, _inside_data_bus_, _inside_control_bus_, DATA_BITS_WIDTH, REGISTER_PC_ACTIVE_BITS);
-        _SP_ = new base::RegisterBase(_inside_data_bus_, _inside_data_bus_, _inside_control_bus_, DATA_BITS_WIDTH, REGISTER_SP_ACTIVE_BITS);
-        _PSW_ = new base::RegisterBase(_inside_data_bus_, _inside_data_bus_, _inside_control_bus_, DATA_BITS_WIDTH, REGISTER_PSW_ACTIVE_BITS);
-        _C_ = new base::RegisterBase(_inside_data_bus_, _inside_data_bus_, _inside_control_bus_, DATA_BITS_WIDTH, REGISTER_C_ACTIVE_BITS);
-        _D_ = new base::RegisterBase(_inside_data_bus_, _inside_data_bus_, _inside_control_bus_, DATA_BITS_WIDTH, REGISTER_D_ACTIVE_BITS);
-        _MAR_ = new base::MutilRegisterBase(_inside_data_bus_, _outside_address_bus_, _inside_data_bus_, _outside_address_bus_, _inside_control_bus_, DATA_BITS_WIDTH, REGISTER_MAR_ACTIVE_BITS);
-        _MDR_ = new base::MutilRegisterBase(_inside_data_bus_, _outside_data_bus_, _inside_data_bus_, _outside_data_bus_, _inside_control_bus_, DATA_BITS_WIDTH, REGISTER_MDR_ACTIVE_BITS);
+        _R0_ = _r0_; 
+        _R1_ = _r1_;
+        _R2_ = _r2_;
+        _R3_ = _r3_;
+        _IP_ = _ip_;
+        _PC_ = _pc_;
+        _SP_ = _sp_;
+        _PSW_ = _psw_;
+        _C_ = _c_;
+        _D_ = _d_;
+        _MAR_ = _mar_;
+        _MDR_ = _mdr_;
 
-        _R0_ -> named("Register0");
-        _R1_ -> named("Register1");
-        _R2_ -> named("Register2");
-        _R3_ -> named("Register3");
-        _IP_ -> named("RegisterIP");
-        _PC_ -> named("RegisterPC");
-        _SP_ -> named("RegisterSP");
-        _PSW_ -> named("RegisterPSW");
-        _C_ -> named("RegisterC");
-        _D_ -> named("RegisterD");
-        _MAR_ -> named("RegisterMAR");
-        _MDR_ -> named("RegisterMDR");
+        _CPU_ = _cpu_;
 
-        //创建CPU
-        _CPU_ = new compute::CPU(_inside_data_bus_, _inside_data_bus_, _inside_data_bus_, 
-                                    _inside_data_bus_, _inside_data_bus_, _inside_data_bus_, 
-                                    _inside_data_bus_, _inside_data_bus_, _inside_data_bus_,
-                                    _inside_data_bus_, _inside_data_bus_, _inside_data_bus_,
-                                    _inside_data_bus_, _inside_control_bus_,
-                                    SELECTOR_A_ACTIVE_BITS,
-                                    SELECTOR_B_ACTIVE_BITS,
-                                    ALU_ACTIVE_BITS,
-                                    SHIFTOR_ACTIVE_BITS,
-                                    DATA_BITS_WIDTH);
-        _CPU_ -> named("CPU");
-
-        //创建内存
-        _memory_ = new compute::MemoryBase(_outside_data_bus_, _outside_data_bus_, 
-                                            _outside_control_bus_, _outside_address_bus_, 
-                                            MEMORY_UNIT_BITS_SIZE, OUTSIDE_ADDRESS_BITS_WIDTH, MEMORY_ACTIVE_BITS);
-        _memory_ -> named("Memory");
-   }
+        _memory_ = _mem_;
+    }
 
    InstructionGeneratorBase::~InstructionGeneratorBase() {
-       delete _R0_;
-       delete _R1_;
-       delete _R2_;
-       delete _R3_;
-       delete _IP_;
-       delete _PC_;
-       delete _SP_;
-       delete _PSW_;
-       delete _MAR_;
-       delete _MDR_;
-       delete _CPU_;
        delete _inside_control_bus_;
        delete _inside_data_bus_;
        delete _outside_address_bus_;
        delete _outside_control_bus_;
        delete _outside_data_bus_;
-       delete _memory_;
    }
 
    void InstructionGeneratorBase::_run_once() {
@@ -1139,25 +996,25 @@ namespace compute {
     }
 
     void InstructionGeneratorBase::debug() {
-        _inside_control_bus_ -> debug("+---");
-        _inside_data_bus_ -> debug("+---");
-        _outside_address_bus_ -> debug("+---");
-        _outside_control_bus_ -> debug("+---");
-        _outside_data_bus_ -> debug("+---");
+        //_inside_control_bus_ -> debug("+---");
+        //_inside_data_bus_ -> debug("+---");
+        //_outside_address_bus_ -> debug("+---");
+        //_outside_control_bus_ -> debug("+---");
+        //_outside_data_bus_ -> debug("+---");
 
-        _CPU_ -> debug("+---");
+        //_CPU_ -> debug("+---");
         _R0_ -> debug("+---");
         _R1_ -> debug("+---");
         _R2_ -> debug("+---");
         _R3_ -> debug("+---");
-        _IP_ -> debug("+---");
-        _PC_ -> debug("+---");
-        _SP_ -> debug("+---");
+        //_IP_ -> debug("+---");
+        //_PC_ -> debug("+---");
+        //_SP_ -> debug("+---");
         _C_ -> debug("+---");
         _D_ -> debug("+---");
-        _MAR_ -> debug("+---");
-        _MDR_ -> debug("+---");
-        _PSW_ -> debug("+---");
+        //_MAR_ -> debug("+---");
+        //_MDR_ -> debug("+---");
+        //_PSW_ -> debug("+---");
         //_memory_ -> debug(0, "+---");
     }
 }
