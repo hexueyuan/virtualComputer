@@ -1,4 +1,8 @@
 # Virtual Computer
+
+[![](https://img.shields.io/dub/l/vibe-d.svg)](https://github.com/hexueyuan/virtualComputer/blob/v0.01/LICENSE)
+![](https://img.shields.io/sonar/4.2/http/sonar.petalslink.com/org.ow2.petals%3Apetals-se-ase/coverage.svg)
+---
 一个从底层硬件模拟的简单计算机。从设计总线、寄存器、ALU、移位器、存储器到设计指令集、微指令控制器，实现了常用的十四条汇编指令，原型机的逻辑结构采用内外总线型，非常容易借此理解计算机组成原理。
 
 ![原型设计](document/image/yuanxing.png)
