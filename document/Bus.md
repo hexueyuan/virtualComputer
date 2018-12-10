@@ -1,6 +1,6 @@
 # bits.h位操作定义
 
-底层的模拟会涉及大量的位运算和逻辑操作，但是C++自身的bitset库无法满足位宽度的运行时动态拓展，并且逻辑运算操作也比较麻烦，因此我实现了一个bits的基本库，使用unsigned long作为基本数据类型，通过对unsigned long的设置来实现bit操作，并将一些为操作相关的函数也放在这里。
+底层的模拟会涉及大量的位运算和逻辑操作，但是C++自身的bitset库无法满足位宽度的运行时动态拓展，并且逻辑运算操作也比较麻烦，因此我实现了一个bits的基本库，使用unsigned long作为基本数据类型，通过对unsigned long的设置来实现bit操作，并将一些为操作相关的函数也放在这里。
 
 `unsigned long _active_bits_offset(unsigned long _active_bits)`  
 **描述**  
@@ -10,7 +10,7 @@
 1. (unsigned long)_active_bits, 有效位变量  
 
 **输出**  
-1. (unsigned long) 偏移  
+1. (unsigned long) 偏移  
 
 **例子**  
 1. _active_bits_offset(0b00111000000) = 6, 有效位111偏移量为6
@@ -41,7 +41,7 @@
 
 `unsigned long _generate_instruction(unsigned long _ins, unsigned long _active_bits)`  
 **描述**  
-根据有效位和无偏移指令生成偏移指令。  
+根据有效位和无偏移指令生成偏移指令。  
 
 **输入**  
 1. (unsigned long)_ins 无偏移指令  
@@ -64,7 +64,7 @@
 
 **输入**  
 1. (unsigned long) _global_ins, 有效偏移指令
-2. (unsigned long) _active_bits, 有效位变量
+2. (unsigned long) _active_bits, 有效位变量
 
 **输出**  
 1. (unsigned long) 无偏移指令
@@ -85,7 +85,7 @@
 2. (unsigned long) _bits 转换长度
 
 **输出**  
-1. (string) 二进制字符串
+1. (string) 二进制字符串
 
 **例子**  
 1. _bin_str(0b1100, 4) = string("1100")
@@ -100,7 +100,7 @@
 字符串转数字。
 
 **输入**  
-1. (string)_str 进行转换的二进制字符串
+1. (string)_str 进行转换的二进制字符串
 
 **输出**  
 1. (unsigned long) 转换后的值
