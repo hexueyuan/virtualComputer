@@ -80,19 +80,19 @@ cd ../tool & ./compile.sh
 
 ## base命名空间组件
 
-- [x]逻辑操作相关库[kernel/base/bits.h](src/kernel/base/bits.h) [说明文档](document/Bus.md)
-- [ ]总线类[kernel/base/bus.h](src/kernel/base/bus.h) [说明文档](.)
-- [ ]单I/O端口寄存器类[kernel/base/register.h](src/kernel/base/register.h) [说明文档](.)
-- [ ]双I/O端口寄存器类[kernel/base/mutil_register.h](src/kernel/base/mutil_register.h) [说明文档](.)
-- [ ]八端口选择寄存器类[kernel/base/selector.h](src/kernel/base/selector.h) [说明文档](.)
-- [ ]运算器ALU类[kernel/base/alu.h](src/kernel/base/alu.h) [说明文档](.)
-- [ ]移位器类[kernel/base/shiftor.h](src/kernel/base/shiftor.h) [说明文档](.)
+- [x] 逻辑操作相关库[kernel/base/bits.h](src/kernel/base/bits.h) [说明文档](document/Bus.md)
+- [ ] 总线类[kernel/base/bus.h](src/kernel/base/bus.h) [说明文档](.)
+- [ ] 单I/O端口寄存器类[kernel/base/register.h](src/kernel/base/register.h) [说明文档](.)
+- [ ] 双I/O端口寄存器类[kernel/base/mutil_register.h](src/kernel/base/mutil_register.h) [说明文档](.)
+- [ ] 八端口选择寄存器类[kernel/base/selector.h](src/kernel/base/selector.h) [说明文档](.)
+- [ ] 运算器ALU类[kernel/base/alu.h](src/kernel/base/alu.h) [说明文档](.)
+- [ ] 移位器类[kernel/base/shiftor.h](src/kernel/base/shiftor.h) [说明文档](.)
 
 ## compute命名空间组件
 
-- [ ]中央处理器cpu类[kernel/cpu.h](src/kernel/cpu.h) [说明文档](.)
-- [ ]Memory存储器类[kernel/memory.h](src/kernel.h) [说明文档](.)
-- [ ]微指令生成器类[kernel/instruction_generator.h](src/kernel/instruction_generator.h) [说明文档](.)
+- [ ] 中央处理器cpu类[kernel/cpu.h](src/kernel/cpu.h) [说明文档](.)
+- [ ] Memory存储器类[kernel/memory.h](src/kernel.h) [说明文档](.)
+- [ ] 微指令生成器类[kernel/instruction_generator.h](src/kernel/instruction_generator.h) [说明文档](.)
 
 # 参与开发
 非常欢迎有兴趣的朋友可以一起来完善这个项目，我的预期是在这个基础之上完成一个前端的游戏，类似于Appstore上的Human Resource Machine。我一个人开发进度应该不会很快，所以非常欢迎有人加入一起开发！
