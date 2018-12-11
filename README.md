@@ -80,8 +80,8 @@ cd ../tool & ./compile.sh
 
 ## base命名空间组件
 
-- [x] 逻辑操作相关库[kernel/base/bits.h](src/kernel/base/bits.h) [说明文档](document/Bus.md)
-- [ ] 总线类[kernel/base/bus.h](src/kernel/base/bus.h) [说明文档](.)
+- [x] 逻辑操作相关库[kernel/base/bits.h](src/kernel/base/bits.h) [说明文档](document/Bits.md)
+- [ ] 总线类[kernel/base/bus.h](src/kernel/base/bus.h) [说明文档](document/BUs.md)
 - [ ] 单I/O端口寄存器类[kernel/base/register.h](src/kernel/base/register.h) [说明文档](.)
 - [ ] 双I/O端口寄存器类[kernel/base/mutil_register.h](src/kernel/base/mutil_register.h) [说明文档](.)
 - [ ] 八端口选择寄存器类[kernel/base/selector.h](src/kernel/base/selector.h) [说明文档](.)

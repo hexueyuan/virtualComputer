@@ -1,114 +1,232 @@
-# bits.h位操作定义
+# bus.h 总线类
 
-底层的模拟会涉及大量的位运算和逻辑操作，但是C++自身的bitset库无法满足位宽度的运行时动态拓展，并且逻辑运算操作也比较麻烦，因此我实现了一个bits的基本库，使用unsigned long作为基本数据类型，通过对unsigned long的设置来实现bit操作，并将一些为操作相关的函数也放在这里。
+```
+class BusBase {
+    public:
+        BusBase(unsigned long _width_);
+        ~BusBase();
 
-`unsigned long _active_bits_offset(unsigned long _active_bits)`  
+        void in(unsigned long _data_);
+        unsigned long out();
+
+        void debug(string prefix = "");
+        void named(string _name_);
+        unsigned long width();
+        string name();
+
+    private:
+        unsigned long  _bus_data_;
+        unsigned long _bus_width_;
+
+        string _bus_name_;
+};
+```
+---
+## 构造函数
+`BusBase(unsigned long _width_);`  
 **描述**  
-求有效位长偏移。  
+构造总线对象。
 
 **输入**  
-1. (unsigned long)_active_bits, 有效位变量  
+1. (unsigned long) \_width 总线宽度，受unsigned long的大小影响不能超过64。
 
 **输出**  
-1. (unsigned long) 偏移  
+None
 
 **例子**  
-1. _active_bits_offset(0b00111000000) = 6, 有效位111偏移量为6
-2. _active_bits_offset(0b111110) = 1, 有效位11111偏移量为1  
+```
+#include "bus.h"
 
-**边界**  
-1. 输入0返回0
-2. 有效位不连续时返回最低区间长度
+int main() {
+    unsigned long _data_width = 32;
+    base::BusBase _inside_data_bus(_data_width);
+}
+```
 
-
-`unsigned long _active_bits_size(unsigned long _active_bits)`  
+**边界** 
+1. \_width 不能超过64
+---
+## 析构函数
+`~BusBase();`  
 **描述**  
-求有效位有效长度.  
+析构总线对象。
 
 **输入**  
-1. (unsigned long)_active_bits, 有效位变量  
+None
 
 **输出**  
-1. (unsigned long) 长度
+None
 
 **例子**  
-1. _active_bits_size(0b0111100) = 4, 有效位1111长度为4  
-2. _active_bits_size(0b11000000) = 2, 有效位11长度为2  
+对象生命周期终止时自动调用。
 
 **边界**  
-1. 输入0返回0
-2. 有效位不连续时返回最低区间长度
+None  
 
-`unsigned long _generate_instruction(unsigned long _ins, unsigned long _active_bits)`  
+---
+
+## Input操作
+`void in(unsigned long _data_);`  
 **描述**  
-根据有效位和无偏移指令生成偏移指令。  
+向总线写入数据。
 
 **输入**  
-1. (unsigned long)_ins 无偏移指令  
-2. (unsigned long)_active_bits 有效位变量  
+1. (unsigned long) \_data\_ 写入的数据。
 
 **输出**  
-1. (unsigned long)有效偏移指令  
+None
 
 **例子**  
-1. _generate_instruction(0b1011, 0b0011110000) = 0b0010110000, 把1011指令放在有效位1111处
-2. _genearte_instruction(0b10101, 0b)
+```
+#include "bus.h"
+
+int main() {
+    unsigned long _data_width = 32;
+    base::BusBase _inside_data_bus(_data_width);
+
+    _inside_data_bus.in(0b0110110011);
+}
+```
 
 **边界**  
-1. 有效位为0时返回也是0  
-2. 有效位长度小于指令长度时，以有效位长度为准，截取掉指令高位  
+1. 写入数据受总线数据宽度影响，取低有效位写入。  
+---
 
-`unsigne long _extract_instruction(unsigned long _global_ins, unsigned long _active_bits)`  
+## Output操作
+`unsigned long out();`  
 **描述**  
-提取无偏移指令。
+从总线内读出数据。
 
 **输入**  
-1. (unsigned long) _global_ins, 有效偏移指令
-2. (unsigned long) _active_bits, 有效位变量
+None
 
 **输出**  
-1. (unsigned long) 无偏移指令
+1. (unsigned long) 总线数据
 
 **例子**  
-1. _extract_instruction(0b001011000, 0b001111000) = 0b1011, 根据有效位1111位置提取指令1011
-2. _extract_instruction(0b001000, 0b111000) = 0b001
+```
+#include <iostream>
+#include "bus.h"
 
-**边界**  
-1. 有效位变量为0时返回0
+int main() {
+    unsigned long _data_width = 32;
+    base::BusBase _inside_data_bus(_data_width);
 
-`string _bin_str(unsigned long _num, unsigned long bits)`  
+    _inside_data_bus.in(0b0110110011);
+    std::cout << _inside_data_bus.out() << std::endl;
+}
+```
+
+**边界**   
+None
+
+---
+
+## 总线命名  
+`void named(string _name_);`  
 **描述**  
-数字转二进制字符串。
+为总线命名。
 
 **输入**  
-1. (unsigned long) _num 进行转换的数字
-2. (unsigned long) _bits 转换长度
+1. (string) \_name\_ 总线名
 
 **输出**  
-1. (string) 二进制字符串
+None
 
 **例子**  
-1. _bin_str(0b1100, 4) = string("1100")
-2. _bin_str(0b0, 8) = string("00000000")
+```
+#include <iostream>
+#include <string>
+#include "bus.h"
 
-**边界**  
-1. bits为0时输出空串  
-2. 输出字符串不带"0b"前缀  
+int main() {
+    unsigned long _data_width = 32;
+    base::BusBase _inside_data_bus(_data_width);
 
-`unsigned long _str_bin(string _str)`  
+    _inside_data_bus.named(std::string("inside_data_bus"));
+    std::cout << _inside_data_bus.name() << std::endl;
+
+    return 0;
+}
+```
+
+**边界** 
+None
+
+`string name();`  
 **描述**  
-字符串转数字。
+返回总线名。
 
 **输入**  
-1. (string)_str 进行转换的二进制字符串
+None
 
 **输出**  
-1. (unsigned long) 转换后的值
+1. (string) 总线名
 
 **例子**  
-1. _str_bin(string("101100")) = 0b101100
-2. _str_bin(string("0")) = 0b0
+见named例子
+
+**边界** 
+None
+
+---
+## 总线宽度
+`unsigned long width();`  
+**描述**  
+返回总线宽度。
+
+**输入**  
+None
+
+**输出**  
+1. (unsigned long)总线宽度
+
+**例子**  
+```
+#include <iostream>
+#include <string>
+#include "bus.h"
+
+int main() {
+    unsigned long _data_width = 32;
+    base::BusBase _inside_data_bus(_data_width);
+
+    std::cout << _inside_data_bus.width() << std::endl;
+
+    return 0;
+}
+```
 
 **边界**  
-1. 当字符串非二进制字符串时，输出截断值，如果第一个字符就是非‘0’或者‘1’的字符，则直接返回0
-2. 当字符串长度超过64位之后，在第64位处截断
+None
+
+---
+## 调试
+`void debug(string prefix = "");`  
+**描述**  
+输出调试信息。
+
+**输入**  
+1. (string) prefix 默认为空, 调试信息前缀
+
+**输出**  
+None
+
+**例子**  
+```
+#include <iostream>
+#include <string>
+#include "bus.h"
+
+int main() {
+    unsigned long _data_width = 32;
+    base::BusBase _inside_data_bus(_data_width);
+
+    _inside_data_bus.debug();
+
+    return 0;
+}
+```
+
+**边界**   
+None
