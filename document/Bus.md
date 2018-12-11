@@ -28,7 +28,7 @@ class BusBase {
 构造总线对象。
 
 **输入**  
-1. (unsigned long) \_width 总线宽度，受unsigned long的大小影响不能超过64。
+1. (unsigned long) \_width 总线宽度，受unsigned long的大小影响不能超过64。
 
 **输出**  
 None
@@ -143,8 +143,8 @@ int main() {
     unsigned long _data_width = 32;
     base::BusBase _inside_data_bus(_data_width);
 
-    _inside_data_bus.named(std::string("inside_data_bus"));
-    std::cout << _inside_data_bus.name() << std::endl;
+    _inside_data_bus.named(std::string("inside_data_bus"));
+    std::cout << _inside_data_bus.name() << std::endl;
 
     return 0;
 }
@@ -170,10 +170,10 @@ None
 None
 
 ---
-## 总线宽度
+## 总线宽度
 `unsigned long width();`  
 **描述**  
-返回总线宽度。
+返回总线宽度。
 
 **输入**  
 None
