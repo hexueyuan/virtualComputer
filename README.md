@@ -84,7 +84,7 @@ cd ../tool & ./compile.sh
 - [x] 逻辑操作相关库[kernel/base/bits.h](src/kernel/base/bits.h) [说明文档](document/Bits.md)
 - [x] 总线类[kernel/base/bus.h](src/kernel/base/bus.h) [说明文档](document/Bus.md)
 - [x] 单I/O端口寄存器类[kernel/base/register.h](src/kernel/base/register.h) [说明文档](document/Register.md)
-- [ ] 双I/O端口寄存器类[kernel/base/mutil_register.h](src/kernel/base/mutil_register.h) [说明文档](.)
+- [ ] 双I/O端口寄存器类[kernel/base/mutil_register.h](src/kernel/base/mutil_register.h) [说明文档](document/Mutil_register.h)
 - [ ] 八端口选择寄存器类[kernel/base/selector.h](src/kernel/base/selector.h) [说明文档](.)
 - [ ] 运算器ALU类[kernel/base/alu.h](src/kernel/base/alu.h) [说明文档](.)
 - [ ] 移位器类[kernel/base/shiftor.h](src/kernel/base/shiftor.h) [说明文档](.)

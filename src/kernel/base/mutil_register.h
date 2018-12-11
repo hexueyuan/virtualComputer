@@ -34,7 +34,7 @@ namespace base {
             //寄存器命名
             void named(string _name);
             //调试
-            void debug(string tab="");
+            void debug(string prefix="");
             //返回命名
             string name();
 
@@ -103,12 +103,12 @@ namespace base {
         _name_ = _name;
     }
 
-    void MutilRegisterBase::debug(string tab) {
+    void MutilRegisterBase::debug(string prefix) {
         unsigned long _offset = base::_active_bits_offset(_instruction_active_bits_);
         unsigned long _instruction_ = (((_control_bus_ -> out()) & _instruction_active_bits_) >> _offset);
         unsigned long _size = base::_active_bits_size(_instruction_active_bits_);
-        string _space(tab.length(), ' ');
-        //cout << tab << "Register(" + _name_ + ") instruction: " << base::_bin_str(_instruction_, _size) << endl;
+        string _space(prefix.length(), ' ');
+        //cout << prefix << "Register(" + _name_ + ") instruction: " << base::_bin_str(_instruction_, _size) << endl;
         cout << _space << "Register(" + _name_ + ") value: " << base::_bin_str(_register_, _data_width_) << endl;
         //cout << _space << "Register(" + _name_ + ") instruction_offset: " << _instruction_active_bits_ << endl;
         //cout << _space << "Register(" + _name_ + ") data_width: " << _data_width_ << endl;
@@ -116,7 +116,7 @@ namespace base {
         //cout << _space << "Register(" + _name_ + ") input_bus_A: " << _input_bus_A_ -> name() << endl;
         //cout << _space << "Register(" + _name_ + ") input_bus_B: " << _input_bus_B_ -> name() << endl;
         //cout << _space << "Register(" + _name_ + ") output_bus_A: " << _output_bus_A_ -> name() << endl;
-        //cout << tab << "Register(" + _name_ + ") output_bus_B: " << _output_bus_B_ -> name() << endl;
+        //cout << prefix << "Register(" + _name_ + ") output_bus_B: " << _output_bus_B_ -> name() << endl;
     }
 
     string MutilRegisterBase::name() {
