@@ -191,7 +191,7 @@ int main() {
     unsigned long _data_width = 32;
     base::BusBase _inside_data_bus(_data_width);
 
-    std::cout << _inside_data_bus.width() << std::endl;
+    std::cout << _inside_data_bus.width() << std::endl;
 
     return 0;
 }
