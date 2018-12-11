@@ -1,6 +1,6 @@
 # bus.h 总线类
 
-```
+```C++
 class BusBase {
     public:
         BusBase(unsigned long _width_);
@@ -34,7 +34,7 @@ class BusBase {
 None
 
 **例子**  
-```
+```C++
 #include "bus.h"
 
 int main() {
@@ -77,7 +77,7 @@ None
 None
 
 **例子**  
-```
+```C++
 #include "bus.h"
 
 int main() {
@@ -104,7 +104,7 @@ None
 1. (unsigned long) 总线数据
 
 **例子**  
-```
+```C++
 #include <iostream>
 #include "bus.h"
 
@@ -134,7 +134,7 @@ None
 None
 
 **例子**  
-```
+```C++
 #include <iostream>
 #include <string>
 #include "bus.h"
@@ -182,7 +182,7 @@ None
 1. (unsigned long)总线宽度
 
 **例子**  
-```
+```C++
 #include <iostream>
 #include <string>
 #include "bus.h"
@@ -213,7 +213,7 @@ None
 None
 
 **例子**  
-```
+```C++
 #include <iostream>
 #include <string>
 #include "bus.h"

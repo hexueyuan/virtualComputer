@@ -31,7 +31,7 @@ namespace base {
             //寄存器命名
             void named(string _name);
             //调试
-            void debug(string tab="");
+            void debug(string prefix="");
             //返回命名
             string name();
 
@@ -47,8 +47,6 @@ namespace base {
             unsigned long _register_;
             //寄存器数据宽度
             unsigned long _data_width_;
-            //指令
-            unsigned long _instruction_;
             //指令偏移
             unsigned long _instruction_active_bits_;
             //命名
@@ -69,7 +67,7 @@ namespace base {
 
     void RegisterBase::operator()() {
         unsigned long _offset = base::_active_bits_offset(_instruction_active_bits_);
-        _instruction_ = (((_control_bus_ -> out()) & _instruction_active_bits_) >> _offset);
+        unsigned long _instruction_ = (((_control_bus_ -> out()) & _instruction_active_bits_) >> _offset);
 
         switch (_instruction_) {
             case REGISTER_READ:
@@ -89,16 +87,18 @@ namespace base {
         _name_ = _name;
     }
 
-    void RegisterBase::debug(string tab) {
+    void RegisterBase::debug(string prefix) {
         unsigned long _size = base::_active_bits_size(_instruction_active_bits_);
-        string _space(tab.length(), ' ');
-        //cout << tab << "Register(" + _name_ + ") instruction: " << base::_bin_str(_instruction_, _size) << endl;
+        unsigned long _offset = base::_active_bits_offset(_instruction_active_bits_);
+        unsigned long _instruction_ = (((_control_bus_ -> out()) & _instruction_active_bits_) >> _offset);
+        string _space(prefix.length(), ' ');
+        //cout << prefix << "Register(" + _name_ + ") instruction: " << base::_bin_str(_instruction_, _size) << endl;
         cout << _space << "Register(" + _name_ + ") value: " << base::_bin_str(_register_, _data_width_) << endl;
         //cout << _space << "Register(" + _name_ + ") instruction_offset: " << _instruction_active_bits_ << endl;
         //cout << _space << "Register(" + _name_ + ") data_width: " << _data_width_ << endl;
         //cout << _space << "Register(" + _name_ + ") control_bus: " << _control_bus_ -> name() << endl;
         //cout << _space << "Register(" + _name_ + ") input_bus: " << _input_bus_ -> name() << endl;
-        //cout << tab << "Register(" + _name_ + ") output_bus: " << _output_bus_ -> name() << endl;
+        //cout << prefix << "Register(" + _name_ + ") output_bus: " << _output_bus_ -> name() << endl;
     }
 
     string RegisterBase::name() {
