@@ -63,7 +63,7 @@ exit|退出
 git clone git@github.com:hexueyuan/virtualComputer.git
 cd VirtualComputer
 mkdir bin
-cmake & make
+cmake . & make
 ```  
 在bin目录下生成asm-tool汇编工具和virtualComputer交互式终端程序。  
 
