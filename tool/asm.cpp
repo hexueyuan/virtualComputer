@@ -11,10 +11,8 @@
 
 #include <unistd.h>
 
-#include "getopt.h"
-
-#include "instruction_generator.h"
-#include "base/bits.h"
+#include "options.h"
+#include "bits.h"
 
 using namespace std;
 
