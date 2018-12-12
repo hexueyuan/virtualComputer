@@ -58,13 +58,27 @@ debug|options|调试指令，options可以是单个寄存器名，也可以是Re
 exit|退出  
 
 # 下载&编译  
-执行
-```
+## 下载
+```bash
 git clone git@github.com:hexueyuan/virtualComputer.git
+```
+## 编译
+### debug版
+```bash
 cd VirtualComputer
-mkdir bin
-cmake . & make
+mkdir build
+cd build
+cmake ..
+make
 ```  
+### release版
+```bash
+cd VirtualComputer
+mkdir build
+cd build
+cmake .. -DCMAKE_BUILD_TYPE=release
+make
+``` 
 在bin目录下生成asm-tool汇编工具和virtualComputer交互式终端程序。  
 
 # 待完成  
@@ -75,8 +89,8 @@ cmake . & make
 - [ ] 更丰富的指令集和更接近使用的汇编工具
 - [ ] 考虑如何更接近实现模拟的时钟信号控制指令执行  
 
-# 一些细节
-基础类在命名空间base下定义，逻辑类在命名空间compute下定义。  
+# 说明文档
+基础类在命名空间base下定义，逻辑类在命名空间computer下定义。  
 
 ## base命名空间组件
 
@@ -87,11 +101,11 @@ cmake . & make
 - [ ] 八端口选择寄存器类[kernel/base/selector.h](src/kernel/base/selector.h) [说明文档](.)
 - [ ] 运算器ALU类[kernel/base/alu.h](src/kernel/base/alu.h) [说明文档](.)
 - [ ] 移位器类[kernel/base/shiftor.h](src/kernel/base/shiftor.h) [说明文档](.)
+- [ ] Memory存储器类[kernel/memory.h](src/kernel.h) [说明文档](.)
 
-## compute命名空间组件
+## computer命名空间组件
 
 - [ ] 中央处理器cpu类[kernel/cpu.h](src/kernel/cpu.h) [说明文档](.)
-- [ ] Memory存储器类[kernel/memory.h](src/kernel.h) [说明文档](.)
 - [ ] 微指令生成器类[kernel/instruction_generator.h](src/kernel/instruction_generator.h) [说明文档](.)
 
 # 参与开发

@@ -1,6 +1,3 @@
-#include <string>
-using std::string;
-
 #include "bits.h"
 
 namespace base {

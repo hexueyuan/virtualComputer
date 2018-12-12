@@ -6,10 +6,8 @@
 #include "options.h"
 #include "cpu.h"
 #include "memory.h"
-#include "memory_rom.h"
 #include "instruction_generator.h"
 
-//#include "base/base.h"
 #include "base/register.h"
 #include "base/mutil_register.h"
 
@@ -40,8 +38,8 @@ class ComputerBase {
         void client();
 
     private:
-        compute::CPU* _CPU_;
-        compute::MemoryBase* _memory_;
+        computer::CPU* _CPU_;
+        base::MemoryBase* _memory_;
         
         base::RegisterBase* _R0_;
         base::RegisterBase* _R1_;
@@ -114,7 +112,7 @@ ComputerBase::ComputerBase() {
     _MDR_ -> named("RegisterMDR");
 
     //创建CPU
-    _CPU_ = new compute::CPU(_inside_data_bus_, _inside_data_bus_, _inside_data_bus_, 
+    _CPU_ = new computer::CPU(_inside_data_bus_, _inside_data_bus_, _inside_data_bus_, 
                                 _inside_data_bus_, _inside_data_bus_, _inside_data_bus_, 
                                 _inside_data_bus_, _inside_data_bus_, _inside_data_bus_,
                                 _inside_data_bus_, _inside_data_bus_, _inside_data_bus_,
@@ -127,7 +125,7 @@ ComputerBase::ComputerBase() {
     _CPU_ -> named("CPU");
 
     //创建内存
-    _memory_ = new compute::MemoryBase(_outside_data_bus_, _outside_data_bus_, 
+    _memory_ = new base::MemoryBase(_outside_data_bus_, _outside_data_bus_, 
                                         _outside_control_bus_, _outside_address_bus_, 
                                         MEMORY_UNIT_BITS_SIZE, OUTSIDE_ADDRESS_BITS_WIDTH, MEMORY_ACTIVE_BITS);
     _memory_ -> named("Memory");

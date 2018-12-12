@@ -3,9 +3,8 @@
 
 #include "options.h"
 #include "cpu.h"
-#include "memory.h"
-#include "memory_rom.h"
 
+#include "base/memory.h"
 #include "base/base.h"
 #include "base/alu.h"
 #include "base/register.h"
@@ -61,7 +60,7 @@ namespace compute {
                                     base::RegisterBase* _sp_, base::RegisterBase* _c_,
                                     base::RegisterBase* _d_, base::MutilRegisterBase* _mar_,
                                     base::MutilRegisterBase* _mdr, base::RegisterBase* _psw_,
-                                    compute::CPU* _cpu_, compute::MemoryBase* _mem_,
+                                    computer::CPU* _cpu_, base::MemoryBase* _mem_,
                                     base::BusBase* _in_data_bus_, base::BusBase* _in_control_bus_,
                                     base::BusBase* _out_data_bus_, base::BusBase* _out_control_bus_,
                                     base::BusBase* _out_address_bus);
@@ -74,9 +73,8 @@ namespace compute {
             void debug();
         
         private:
-            compute::CPU* _CPU_;
-            compute::MemoryBase* _memory_;
-            //compute::MemoryROM* _memory_;
+            computer::CPU* _CPU_;
+            base::MemoryBase* _memory_;
             
             base::RegisterBase* _R0_;
             base::RegisterBase* _R1_;
@@ -143,7 +141,7 @@ namespace compute {
                                                     base::RegisterBase* _sp_, base::RegisterBase* _c_,
                                                     base::RegisterBase* _d_, base::MutilRegisterBase* _mar_,
                                                     base::MutilRegisterBase* _mdr_, base::RegisterBase* _psw_,
-                                                    compute::CPU* _cpu_, compute::MemoryBase* _mem_,
+                                                    computer::CPU* _cpu_, base::MemoryBase* _mem_,
                                                     base::BusBase* _in_data_bus_, base::BusBase* _in_control_bus_,
                                                     base::BusBase* _out_data_bus_, base::BusBase* _out_control_bus_,
                                                     base::BusBase* _out_address_bus) {

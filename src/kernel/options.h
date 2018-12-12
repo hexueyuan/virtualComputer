@@ -1,9 +1,5 @@
 #ifndef __OPTIONS_H__
 #define __OPTIONS_H__
-#include <iostream>
-#include <string>
-
-using namespace std;
 
 #define DATA_BITS_WIDTH                 (unsigned long)32   //数据宽度
 #define INSIDE_CONTROL_BITS_WIDTH       (unsigned long)39 //内控制总线宽度
