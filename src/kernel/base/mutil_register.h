@@ -104,9 +104,9 @@ namespace base {
     }
 
     void MutilRegisterBase::debug(string prefix) {
-        unsigned long _offset = base::_active_bits_offset(_instruction_active_bits_);
-        unsigned long _instruction_ = (((_control_bus_ -> out()) & _instruction_active_bits_) >> _offset);
-        unsigned long _size = base::_active_bits_size(_instruction_active_bits_);
+        //unsigned long _offset = base::_active_bits_offset(_instruction_active_bits_);
+        //unsigned long _instruction_ = (((_control_bus_ -> out()) & _instruction_active_bits_) >> _offset);
+        //unsigned long _size = base::_active_bits_size(_instruction_active_bits_);
         string _space(prefix.length(), ' ');
         //cout << prefix << "Register(" + _name_ + ") instruction: " << base::_bin_str(_instruction_, _size) << endl;
         cout << _space << "Register(" + _name_ + ") value: " << base::_bin_str(_register_, _data_width_) << endl;

@@ -1,0 +1,20 @@
+cmake_minimum_required(VERSION 2.8)
+
+project(virtualComputer)
+set(CMAKE_CXX_COMPILER "g++")
+set(CMAKE_CXX_FLAGS "-Wall")
+set(CMAKE_CXX_FLAGS_DEBUG "-g3")
+set(CMAKE_CXX_FLAGS_RELEASE "-O2")
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+
+aux_source_directory(./src SRC_LIST)
+include_directories(${PROJECT_SOURCE_DIR}/src/kernel)
+include_directories(${PROJECT_SOURCE_DIR}/src/kernel/base)
+
+if(${CMAKE_BUILD_TYPE} MATCHES "debug")
+    add_executable(virtualComputer-debug ${SRC_LIST})
+    add_executable(asm-tool-debug tool/asm.cpp)
+else()
+    add_executable(virtualComputer ${SRC_LIST})
+    add_executable(asm-tool tool/asm.cpp)
+endif()
