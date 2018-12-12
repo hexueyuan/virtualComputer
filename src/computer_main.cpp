@@ -61,7 +61,7 @@ class ComputerBase {
         base::BusBase* _outside_data_bus_;
         base::BusBase* _outside_control_bus_;
 
-        compute::InstructionGeneratorBase* _instruction_generator_;
+        computer::InstructionGeneratorBase* _instruction_generator_;
 
         void _load_bin(string file);
         void _debug_info(string argv, string val);
@@ -129,7 +129,7 @@ ComputerBase::ComputerBase() {
                                         _outside_control_bus_, _outside_address_bus_, 
                                         MEMORY_UNIT_BITS_SIZE, OUTSIDE_ADDRESS_BITS_WIDTH, MEMORY_ACTIVE_BITS);
     _memory_ -> named("Memory");
-    _instruction_generator_ = new compute::InstructionGeneratorBase(
+    _instruction_generator_ = new computer::InstructionGeneratorBase(
                             _R0_, _R1_,
                             _R2_, _R3_,
                             _IP_, _PC_,
