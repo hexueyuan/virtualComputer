@@ -17,27 +17,15 @@ namespace base {
 
     MemoryBase::~MemoryBase() {}
 
-    void MemoryBase::_write() {
-        if (_address_bus_ -> out() < ((unsigned long)1 << _memory_addr_bits_width_)) {
-            _memory_[_address_bus_ -> out()] = (_input_data_bus_ -> out()) & (((unsigned long)1 << _memory_unit_bits_size_) - 1);
-        }
-    }
-
-    void MemoryBase::_read() {
-        if (_address_bus_ -> out() < ((unsigned long)1 << _memory_addr_bits_width_)) {
-            _output_data_bus_ -> in(_memory_[_address_bus_ -> out()]);
-        }
-    }
-
     void MemoryBase::operator()() {
-        _instruction_ = base::_extract_instruction(_control_bus_ -> out(), _memory_active_bits_);
+        unsigned long _instruction_ = base::_extract_instruction(_control_bus_ -> out(), _memory_active_bits_);
 
         switch (_instruction_) {
             case MEMORY_READ:
-                _read();
+                write_in(_address_bus_ -> out(), _input_data_bus_ -> out());
                 break;
             case MEMORY_WRITE:
-                _write();
+                _output_data_bus_ -> in(read_from(_address_bus_ -> out()));
                 break;
             case MEMORY_NOT_ENABLE:
                 break;
@@ -58,6 +46,15 @@ namespace base {
     }
    
    void MemoryBase::write_in(unsigned long addr, unsigned long data) {
-       _memory_[addr & (((unsigned long)1 << _memory_addr_bits_width_) - 1)] = (data & (((unsigned long)1 << _memory_unit_bits_size_) - 1));
+        unsigned long _eff_addr_bits = base::_effective_bits(_memory_addr_bits_width_);
+        unsigned long _eff_unit_bits = base::_effective_bits(_memory_unit_bits_size_);
+
+       _memory_[addr & _eff_addr_bits] = data & _eff_unit_bits;
+   }
+
+   unsigned long MemoryBase::read_from(unsigned long addr) {
+        unsigned long _eff_addr_bits = base::_effective_bits(_memory_addr_bits_width_);
+        unsigned long _eff_unit_bits = base::_effective_bits(_memory_unit_bits_size_);
+        return _memory_[addr & _eff_addr_bits] & _eff_unit_bits;
    }
 }

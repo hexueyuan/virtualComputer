@@ -8,11 +8,10 @@
 
 using namespace std;
 
-#define MEMORY_INSTRUCTION_BITS_SIZE 2
-#define MEMORY_READ 0b10
-#define MEMORY_WRITE 0b11
-#define MEMORY_NOT_ENABLE 0b00
-#define MEMORY_CONTAIN 0b01
+#define MEMORY_NOT_ENABLE           0b00
+#define MEMORY_READ                 0b10    //从输入总线读取数据
+#define MEMORY_WRITE                0b11    //把数据写到输出总线
+#define MEMORY_CONTAIN              0b01
 
 //存储器主类
 //可以被继承并生成各种存储设备
@@ -39,6 +38,9 @@ namespace base {
             //直接写入数据
             void write_in(unsigned long addr, unsigned long data);
 
+            //读出数据
+            unsigned long read_from(unsigned long addr);
+
             //命名
             void named(string _name);
             //调试
@@ -49,7 +51,6 @@ namespace base {
             base::BusBase* _output_data_bus_;
             base::BusBase* _address_bus_;
             base::BusBase* _control_bus_;
-            unsigned long _instruction_;
             unsigned long _memory_active_bits_;
 
             unsigned long _memory_unit_bits_size_;
@@ -57,9 +58,6 @@ namespace base {
             unsigned long* _memory_;
 
             string _name_;
-
-            void _write();
-            void _read();
     };
 }
 

@@ -3,11 +3,13 @@
 
 namespace base {
     ShiftorBase::ShiftorBase(BusBase* _in_A_, BusBase* _in_B_, BusBase* _out_, 
-                        BusBase* _control_, unsigned long _ins_active_bits_) {
+                        BusBase* _control_, unsigned long _d_width,
+                        unsigned long _ins_active_bits_) {
         _input_bus_A_ = _in_A_;
         _input_bus_B_ = _in_B_;
         _output_bus_ = _out_;
         _control_bus_ = _control_;
+        _data_width = _d_width;
         _instruction_active_bits_ = _ins_active_bits_;
     }
 
@@ -38,11 +40,11 @@ namespace base {
     }
 
     void ShiftorBase::_left_shift() {
-        _output_bus_ -> in((_input_bus_A_ -> out()) << (_input_bus_B_ -> out()));
+        _output_bus_ -> in((_input_bus_A_ -> out() & base::_effective_bits(_data_width)) << (_input_bus_B_ -> out()));
     }
 
     void ShiftorBase::_right_shift() {
-        _output_bus_ -> in((_input_bus_A_ -> out()) >> (_input_bus_B_ -> out()));
+        _output_bus_ -> in((_input_bus_A_ -> out() & base::_effective_bits(_data_width)) >> (_input_bus_B_ -> out()));
     }
 
     void ShiftorBase::_direct_transmission() {

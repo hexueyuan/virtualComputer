@@ -48,4 +48,8 @@ namespace base {
         }
         return _num;
     }
+
+    unsigned long _effective_bits(unsigned long _data_width) {
+        return ((((unsigned long)1 << (_data_width - 1)) - 1) << 1) + 1;
+    }
 }

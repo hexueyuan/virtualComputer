@@ -21,10 +21,10 @@ namespace base {
 
         switch (_instruction_) {
             case REGISTER_READ:
-                _register_ = (_input_bus_ -> out()) & (((unsigned long)1 << (_data_width_)) - 1);
+                _register_ = (_input_bus_ -> out() & base::_effective_bits(_data_width_));
                 break;
             case REGISTER_WRITE:
-                _output_bus_ -> in(_register_);
+                _output_bus_ -> in(_register_ & base::_effective_bits(_data_width_));
                 break;
             case REGISTER_NOT_ENABLE:
                 break;

@@ -1,84 +1,628 @@
+#include <gtest/gtest.h>
 #include "selector.h"
-#include "bus.h"
 
-int main() {
-    unsigned long _data_width = 8;
-    base::BusBase _in_0_(_data_width);
-    base::BusBase _in_1_(_data_width);
-    base::BusBase _in_2_(_data_width);
-    base::BusBase _in_3_(_data_width);
-    base::BusBase _in_4_(_data_width);
-    base::BusBase _in_5_(_data_width);
-    base::BusBase _in_6_(_data_width);
-    base::BusBase _in_7_(_data_width);
-    base::BusBase _out_(_data_width);
-    base::BusBase _control_(16);
+class TestSelector8bits:public testing::Test {
+    public:
+        base::BusBase* _input_bus_0_;
+        base::BusBase* _input_bus_1_;
+        base::BusBase* _input_bus_2_;
+        base::BusBase* _input_bus_3_;
+        base::BusBase* _input_bus_4_;
+        base::BusBase* _input_bus_5_;
+        base::BusBase* _input_bus_6_;
+        base::BusBase* _input_bus_7_;
+        base::BusBase* _output_bus_;
+        base::BusBase* _control_bus_;
 
-    _in_0_.named("Input0");
-    _in_1_.named("Input1");
-    _in_2_.named("Input2");
-    _in_3_.named("Input3");
-    _in_4_.named("Input4");
-    _in_5_.named("Input5");
-    _in_6_.named("Input6");
-    _in_7_.named("Input7");
-    _out_.named("Output");
-    _control_.named("Control");
+        unsigned long _data_width;
+        unsigned long _ins_active_bits;
+        base::SelectorBase* _selector_;
 
-    unsigned long _ins_active_ = 0b0011110000000;
+        virtual void SetUp() {
+            _data_width = 8;
+            _ins_active_bits = 0b1111;
+            _input_bus_0_ = new base::BusBase(_data_width);
+            _input_bus_1_ = new base::BusBase(_data_width);
+            _input_bus_2_ = new base::BusBase(_data_width);
+            _input_bus_3_ = new base::BusBase(_data_width);
+            _input_bus_4_ = new base::BusBase(_data_width);
+            _input_bus_5_ = new base::BusBase(_data_width);
+            _input_bus_6_ = new base::BusBase(_data_width);
+            _input_bus_7_ = new base::BusBase(_data_width);
+            _output_bus_ = new base::BusBase(_data_width);
+            _control_bus_ = new base::BusBase(base::_active_bits_size(_ins_active_bits));
 
-    base::SelectorBase s(&_in_0_, &_in_1_, &_in_2_, &_in_3_, 
-            &_in_4_, &_in_5_, &_in_6_, &_in_7_, &_out_, &_control_, _ins_active_);
-    s.named("Selector");
+            _selector_ = new base::SelectorBase(_input_bus_0_, _input_bus_1_, _input_bus_2_,
+                                        _input_bus_3_, _input_bus_4_, _input_bus_5_, 
+                                        _input_bus_6_, _input_bus_7_, _output_bus_, _control_bus_,
+                                        _data_width, _ins_active_bits);
+        }
 
-    //初始化
-    _in_0_.write(0b00000000);
-    _in_1_.write(0b00110000);
-    _in_2_.write(0b00000000);
-    _in_3_.write(0b00000000);
-    _in_4_.write(0b00000000);
-    _in_5_.write(0b00000000);
-    _in_6_.write(0b00000000);
-    _in_7_.write(0b00000000);
-    _out_.write(0b00000000);
-    _control_.write(SELECTOR_ROUTE_1 << base::_active_bits_offset(_ins_active_));
-    //_control_.debug("*---");
-    //cout << "*---" << base::_bin_str(base::_extract_instruction(_control_.read(), _ins_active_), base::_active_bits_size(_ins_active_)) << endl;
-    s();
-    s.debug("+---");
-    _in_0_.debug("o---");
-    _in_1_.debug("o---");
-    _in_2_.debug("o---");
-    _in_3_.debug("o---");
-    _in_4_.debug("o---");
-    _in_5_.debug("o---");
-    _in_6_.debug("o---");
-    _in_7_.debug("o---");
-    _out_.debug("o---");
-    _control_.debug("o---");
+        virtual void TearDown() {
+            delete _input_bus_0_;
+            delete _input_bus_1_;
+            delete _input_bus_2_;
+            delete _input_bus_3_;
+            delete _input_bus_4_;
+            delete _input_bus_5_;
+            delete _input_bus_6_;
+            delete _input_bus_7_;
+            delete _output_bus_;
+            delete _control_bus_;
+            delete _selector_;
+        }
+};
 
-    _in_0_.write(0b00000000);
-    _in_1_.write(0b00000000);
-    _in_2_.write(0b00000000);
-    _in_3_.write(0b00010101);
-    _in_4_.write(0b00000000);
-    _in_5_.write(0b00000000);
-    _in_6_.write(0b00000000);
-    _in_7_.write(0b00000000);
-    _out_.write(0b00000000);
-    _control_.write(SELECTOR_ROUTE_3 << base::_active_bits_offset(_ins_active_));
-    s();
-    s.debug("+---");
-    _in_0_.debug("o---");
-    _in_1_.debug("o---");
-    _in_2_.debug("o---");
-    _in_3_.debug("o---");
-    _in_4_.debug("o---");
-    _in_5_.debug("o---");
-    _in_6_.debug("o---");
-    _in_7_.debug("o---");
-    _out_.debug("o---");
-    _control_.debug("o---");
+TEST_F(TestSelector8bits, Test_io_case1) {
+    _input_bus_0_ -> in(0);
+    _input_bus_1_ -> in(1);
+    _input_bus_2_ -> in(2);
+    _input_bus_3_ -> in(3);
+    _input_bus_4_ -> in(4);
+    _input_bus_5_ -> in(5);
+    _input_bus_6_ -> in(6);
+    _input_bus_7_ -> in(7);
 
-    return 0;
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_0, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_EQ(_output_bus_ -> out(), 0);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_1, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_EQ(_output_bus_ -> out(), 1);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_2, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_EQ(_output_bus_ -> out(), 2);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_3, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_EQ(_output_bus_ -> out(), 3);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_4, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_EQ(_output_bus_ -> out(), 4);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_5, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_EQ(_output_bus_ -> out(), 5);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_6, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_EQ(_output_bus_ -> out(), 6);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_7, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_EQ(_output_bus_ -> out(), 7);
+}
+
+TEST_F(TestSelector8bits, Test_io_case2) {
+    _input_bus_0_ -> in(0b111111111);
+    _input_bus_1_ -> in(0b1111111111);
+    _input_bus_2_ -> in(0b11111111111);
+    _input_bus_3_ -> in(0b111111111111);
+    _input_bus_4_ -> in(0b1111111111111);
+    _input_bus_5_ -> in(0b11111111111111);
+    _input_bus_6_ -> in(0b111111111111111);
+    _input_bus_7_ -> in(0b1111111111111111);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_0, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_NE(_output_bus_ -> out(), 0);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_1, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_NE(_output_bus_ -> out(), 1);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_2, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_NE(_output_bus_ -> out(), 2);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_3, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_NE(_output_bus_ -> out(), 3);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_4, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_NE(_output_bus_ -> out(), 4);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_5, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_NE(_output_bus_ -> out(), 5);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_6, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_NE(_output_bus_ -> out(), 6);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_7, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_NE(_output_bus_ -> out(), 7);
+}
+
+class TestSelector16bits:public testing::Test {
+    public:
+        base::BusBase* _input_bus_0_;
+        base::BusBase* _input_bus_1_;
+        base::BusBase* _input_bus_2_;
+        base::BusBase* _input_bus_3_;
+        base::BusBase* _input_bus_4_;
+        base::BusBase* _input_bus_5_;
+        base::BusBase* _input_bus_6_;
+        base::BusBase* _input_bus_7_;
+        base::BusBase* _output_bus_;
+        base::BusBase* _control_bus_;
+
+        unsigned long _data_width;
+        unsigned long _ins_active_bits;
+        base::SelectorBase* _selector_;
+
+        virtual void SetUp() {
+            _data_width = 16;
+            _ins_active_bits = 0b1111;
+            _input_bus_0_ = new base::BusBase(_data_width);
+            _input_bus_1_ = new base::BusBase(_data_width);
+            _input_bus_2_ = new base::BusBase(_data_width);
+            _input_bus_3_ = new base::BusBase(_data_width);
+            _input_bus_4_ = new base::BusBase(_data_width);
+            _input_bus_5_ = new base::BusBase(_data_width);
+            _input_bus_6_ = new base::BusBase(_data_width);
+            _input_bus_7_ = new base::BusBase(_data_width);
+            _output_bus_ = new base::BusBase(_data_width);
+            _control_bus_ = new base::BusBase(base::_active_bits_size(_ins_active_bits));
+
+            _selector_ = new base::SelectorBase(_input_bus_0_, _input_bus_1_, _input_bus_2_,
+                                        _input_bus_3_, _input_bus_4_, _input_bus_5_, 
+                                        _input_bus_6_, _input_bus_7_, _output_bus_, _control_bus_,
+                                        _data_width, _ins_active_bits);
+        }
+
+        virtual void TearDown() {
+            delete _input_bus_0_;
+            delete _input_bus_1_;
+            delete _input_bus_2_;
+            delete _input_bus_3_;
+            delete _input_bus_4_;
+            delete _input_bus_5_;
+            delete _input_bus_6_;
+            delete _input_bus_7_;
+            delete _output_bus_;
+            delete _control_bus_;
+            delete _selector_;
+        }
+};
+
+TEST_F(TestSelector16bits, Test_io_case1) {
+    _input_bus_0_ -> in(0);
+    _input_bus_1_ -> in(1);
+    _input_bus_2_ -> in(2);
+    _input_bus_3_ -> in(3);
+    _input_bus_4_ -> in(4);
+    _input_bus_5_ -> in(5);
+    _input_bus_6_ -> in(6);
+    _input_bus_7_ -> in(7);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_0, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_EQ(_output_bus_ -> out(), 0);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_1, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_EQ(_output_bus_ -> out(), 1);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_2, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_EQ(_output_bus_ -> out(), 2);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_3, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_EQ(_output_bus_ -> out(), 3);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_4, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_EQ(_output_bus_ -> out(), 4);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_5, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_EQ(_output_bus_ -> out(), 5);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_6, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_EQ(_output_bus_ -> out(), 6);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_7, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_EQ(_output_bus_ -> out(), 7);
+}
+
+TEST_F(TestSelector16bits, Test_io_case2) {
+    _input_bus_0_ -> in(0b11111111111111111);
+    _input_bus_1_ -> in(0b111111111111111111);
+    _input_bus_2_ -> in(0b1111111111111111111);
+    _input_bus_3_ -> in(0b11111111111111111111);
+    _input_bus_4_ -> in(0b111111111111111111111);
+    _input_bus_5_ -> in(0b1111111111111111111111);
+    _input_bus_6_ -> in(0b11111111111111111111111);
+    _input_bus_7_ -> in(0b111111111111111111111111);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_0, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_NE(_output_bus_ -> out(), 0);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_1, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_NE(_output_bus_ -> out(), 1);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_2, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_NE(_output_bus_ -> out(), 2);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_3, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_NE(_output_bus_ -> out(), 3);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_4, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_NE(_output_bus_ -> out(), 4);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_5, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_NE(_output_bus_ -> out(), 5);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_6, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_NE(_output_bus_ -> out(), 6);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_7, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_NE(_output_bus_ -> out(), 7);
+}
+
+class TestSelector32bits:public testing::Test {
+    public:
+        base::BusBase* _input_bus_0_;
+        base::BusBase* _input_bus_1_;
+        base::BusBase* _input_bus_2_;
+        base::BusBase* _input_bus_3_;
+        base::BusBase* _input_bus_4_;
+        base::BusBase* _input_bus_5_;
+        base::BusBase* _input_bus_6_;
+        base::BusBase* _input_bus_7_;
+        base::BusBase* _output_bus_;
+        base::BusBase* _control_bus_;
+
+        unsigned long _data_width;
+        unsigned long _ins_active_bits;
+        base::SelectorBase* _selector_;
+
+        virtual void SetUp() {
+            _data_width = 32;
+            _ins_active_bits = 0b1111;
+            _input_bus_0_ = new base::BusBase(_data_width);
+            _input_bus_1_ = new base::BusBase(_data_width);
+            _input_bus_2_ = new base::BusBase(_data_width);
+            _input_bus_3_ = new base::BusBase(_data_width);
+            _input_bus_4_ = new base::BusBase(_data_width);
+            _input_bus_5_ = new base::BusBase(_data_width);
+            _input_bus_6_ = new base::BusBase(_data_width);
+            _input_bus_7_ = new base::BusBase(_data_width);
+            _output_bus_ = new base::BusBase(_data_width);
+            _control_bus_ = new base::BusBase(base::_active_bits_size(_ins_active_bits));
+
+            _selector_ = new base::SelectorBase(_input_bus_0_, _input_bus_1_, _input_bus_2_,
+                                        _input_bus_3_, _input_bus_4_, _input_bus_5_, 
+                                        _input_bus_6_, _input_bus_7_, _output_bus_, _control_bus_,
+                                        _data_width, _ins_active_bits);
+        }
+
+        virtual void TearDown() {
+            delete _input_bus_0_;
+            delete _input_bus_1_;
+            delete _input_bus_2_;
+            delete _input_bus_3_;
+            delete _input_bus_4_;
+            delete _input_bus_5_;
+            delete _input_bus_6_;
+            delete _input_bus_7_;
+            delete _output_bus_;
+            delete _control_bus_;
+            delete _selector_;
+        }
+};
+
+TEST_F(TestSelector32bits, Test_io_case1) {
+    _input_bus_0_ -> in(0);
+    _input_bus_1_ -> in(1);
+    _input_bus_2_ -> in(2);
+    _input_bus_3_ -> in(3);
+    _input_bus_4_ -> in(4);
+    _input_bus_5_ -> in(5);
+    _input_bus_6_ -> in(6);
+    _input_bus_7_ -> in(7);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_0, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_EQ(_output_bus_ -> out(), 0);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_1, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_EQ(_output_bus_ -> out(), 1);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_2, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_EQ(_output_bus_ -> out(), 2);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_3, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_EQ(_output_bus_ -> out(), 3);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_4, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_EQ(_output_bus_ -> out(), 4);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_5, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_EQ(_output_bus_ -> out(), 5);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_6, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_EQ(_output_bus_ -> out(), 6);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_7, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_EQ(_output_bus_ -> out(), 7);
+}
+
+TEST_F(TestSelector32bits, Test_io_case2) {
+    _input_bus_0_ -> in(0b111111111111111111111111111111111);
+    _input_bus_1_ -> in(0b1111111111111111111111111111111111);
+    _input_bus_2_ -> in(0b11111111111111111111111111111111111);
+    _input_bus_3_ -> in(0b111111111111111111111111111111111111);
+    _input_bus_4_ -> in(0b1111111111111111111111111111111111111);
+    _input_bus_5_ -> in(0b11111111111111111111111111111111111111);
+    _input_bus_6_ -> in(0b111111111111111111111111111111111111111);
+    _input_bus_7_ -> in(0b1111111111111111111111111111111111111111);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_0, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_NE(_output_bus_ -> out(), 0);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_1, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_NE(_output_bus_ -> out(), 1);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_2, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_NE(_output_bus_ -> out(), 2);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_3, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_NE(_output_bus_ -> out(), 3);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_4, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_NE(_output_bus_ -> out(), 4);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_5, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_NE(_output_bus_ -> out(), 5);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_6, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_NE(_output_bus_ -> out(), 6);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_7, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_NE(_output_bus_ -> out(), 7);
+}
+
+class TestSelector64bits:public testing::Test {
+    public:
+        base::BusBase* _input_bus_0_;
+        base::BusBase* _input_bus_1_;
+        base::BusBase* _input_bus_2_;
+        base::BusBase* _input_bus_3_;
+        base::BusBase* _input_bus_4_;
+        base::BusBase* _input_bus_5_;
+        base::BusBase* _input_bus_6_;
+        base::BusBase* _input_bus_7_;
+        base::BusBase* _output_bus_;
+        base::BusBase* _control_bus_;
+
+        unsigned long _data_width;
+        unsigned long _ins_active_bits;
+        base::SelectorBase* _selector_;
+
+        virtual void SetUp() {
+            _data_width = 64;
+            _ins_active_bits = 0b1111;
+            _input_bus_0_ = new base::BusBase(_data_width);
+            _input_bus_1_ = new base::BusBase(_data_width);
+            _input_bus_2_ = new base::BusBase(_data_width);
+            _input_bus_3_ = new base::BusBase(_data_width);
+            _input_bus_4_ = new base::BusBase(_data_width);
+            _input_bus_5_ = new base::BusBase(_data_width);
+            _input_bus_6_ = new base::BusBase(_data_width);
+            _input_bus_7_ = new base::BusBase(_data_width);
+            _output_bus_ = new base::BusBase(_data_width);
+            _control_bus_ = new base::BusBase(base::_active_bits_size(_ins_active_bits));
+
+            _selector_ = new base::SelectorBase(_input_bus_0_, _input_bus_1_, _input_bus_2_,
+                                        _input_bus_3_, _input_bus_4_, _input_bus_5_, 
+                                        _input_bus_6_, _input_bus_7_, _output_bus_, _control_bus_,
+                                        _data_width, _ins_active_bits);
+        }
+
+        virtual void TearDown() {
+            delete _input_bus_0_;
+            delete _input_bus_1_;
+            delete _input_bus_2_;
+            delete _input_bus_3_;
+            delete _input_bus_4_;
+            delete _input_bus_5_;
+            delete _input_bus_6_;
+            delete _input_bus_7_;
+            delete _output_bus_;
+            delete _control_bus_;
+            delete _selector_;
+        }
+};
+
+TEST_F(TestSelector64bits, Test_io_case1) {
+    _input_bus_0_ -> in(0);
+    _input_bus_1_ -> in(1);
+    _input_bus_2_ -> in(2);
+    _input_bus_3_ -> in(3);
+    _input_bus_4_ -> in(4);
+    _input_bus_5_ -> in(5);
+    _input_bus_6_ -> in(6);
+    _input_bus_7_ -> in(7);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_0, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_EQ(_output_bus_ -> out(), 0);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_1, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_EQ(_output_bus_ -> out(), 1);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_2, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_EQ(_output_bus_ -> out(), 2);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_3, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_EQ(_output_bus_ -> out(), 3);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_4, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_EQ(_output_bus_ -> out(), 4);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_5, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_EQ(_output_bus_ -> out(), 5);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_6, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_EQ(_output_bus_ -> out(), 6);
+
+    _output_bus_ -> in(0);
+
+    _control_bus_ -> in(base::_generate_instruction(SELECTOR_ROUTE_7, _ins_active_bits));
+    (*_selector_)();
+    EXPECT_EQ(_output_bus_ -> out(), 7);
+}
+
+GTEST_API_ int main(int argc, char** argv) {
+    testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }

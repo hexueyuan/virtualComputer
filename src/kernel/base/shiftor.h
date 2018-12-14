@@ -20,9 +20,11 @@ namespace base {
             //      _in_B_ 数据输入总线B
             //      _out_ 输出总线
             //      _control_ 控制总线
+            //      _d_width_ 数据宽度
             //      _ins_active_bits_ 有效指令位
             ShiftorBase(BusBase* _in_A_, BusBase* _in_B_, BusBase* _out_, 
-                            BusBase* _control_, unsigned long _ins_active_bits_);
+                            BusBase* _control_, unsigned long _data_width, 
+                            unsigned long _ins_active_bits_);
             ~ShiftorBase();
 
             //执行一次当前控制总线上的指令
@@ -39,8 +41,8 @@ namespace base {
             BusBase* _output_bus_;
             BusBase* _control_bus_;
 
-            //bitset<SHIFTOR_INSTRUCTION_BITS_SIZE> _instruction_;
             unsigned long _instruction_;
+            unsigned long _data_width;
             unsigned long _instruction_active_bits_;
             string _name_;
 

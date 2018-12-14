@@ -8,11 +8,11 @@ namespace base {
     BusBase::~BusBase() {}
 
     void BusBase::in(unsigned long _data_) {
-        _bus_data_ = _data_ & (((unsigned long)1 << _bus_width_) - 1);
+        _bus_data_ = _data_ & base::_effective_bits(_bus_width_);
     }
 
     unsigned long BusBase::out() {
-        return _bus_data_ & (((unsigned long)1 << _bus_width_) - 1);
+        return _bus_data_ & base::_effective_bits(_bus_width_);
     }
 
     void BusBase::debug(string prefix) {

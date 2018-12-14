@@ -4,7 +4,8 @@
 namespace base {
     SelectorBase::SelectorBase(BusBase* _in_0_, BusBase* _in_1_, BusBase* _in_2_, BusBase* _in_3_,
                             BusBase* _in_4_, BusBase* _in_5_, BusBase* _in_6_, BusBase* _in_7_,
-                            BusBase* _out_, BusBase* _control_, unsigned long _ins_active_bits_) {
+                            BusBase* _out_, BusBase* _control_, unsigned long _d_width_, 
+                            unsigned long _ins_active_bits_) {
         _input_bus_0_ = _in_0_;
         _input_bus_1_ = _in_1_;
         _input_bus_2_ = _in_2_;
@@ -15,6 +16,7 @@ namespace base {
         _input_bus_7_ = _in_7_;
         _output_bus_ = _out_;
         _control_bus_ = _control_;
+        _data_width_ = _d_width_;
         _instruction_active_bits_ = _ins_active_bits_;
     }
 
@@ -22,32 +24,31 @@ namespace base {
 
     void SelectorBase::operator()() {
         _instruction_ = base::_extract_instruction(_control_bus_ -> out(), _instruction_active_bits_);
-        //_instruction_ = (_control_bus_ -> read()) >> _instruction_offset_;
 
         switch(_instruction_) {
             case SELECTOR_ROUTE_0:
-                _output_bus_ -> in(_input_bus_0_ -> out());
+                _output_bus_ -> in(_input_bus_0_ -> out() & base::_effective_bits(_data_width_));
                 break;
             case SELECTOR_ROUTE_1:
-                _output_bus_ -> in(_input_bus_1_ -> out());
+                _output_bus_ -> in(_input_bus_1_ -> out() & base::_effective_bits(_data_width_));
                 break;
             case SELECTOR_ROUTE_2:
-                _output_bus_ -> in(_input_bus_2_ -> out());
+                _output_bus_ -> in(_input_bus_2_ -> out() & base::_effective_bits(_data_width_));
                 break;
             case SELECTOR_ROUTE_3:
-                _output_bus_ -> in(_input_bus_3_ -> out());
+                _output_bus_ -> in(_input_bus_3_ -> out() & base::_effective_bits(_data_width_));
                 break;
             case SELECTOR_ROUTE_4:
-                _output_bus_ -> in(_input_bus_4_ -> out());
+                _output_bus_ -> in(_input_bus_4_ -> out() & base::_effective_bits(_data_width_));
                 break;
             case SELECTOR_ROUTE_5:
-                _output_bus_ -> in(_input_bus_5_ -> out());
+                _output_bus_ -> in(_input_bus_5_ -> out() & base::_effective_bits(_data_width_));
                 break;
             case SELECTOR_ROUTE_6:
-                _output_bus_ -> in(_input_bus_6_ -> out());
+                _output_bus_ -> in(_input_bus_6_ -> out() & base::_effective_bits(_data_width_));
                 break;
             case SELECTOR_ROUTE_7:
-                _output_bus_ -> in(_input_bus_7_ -> out());
+                _output_bus_ -> in(_input_bus_7_ -> out() & base::_effective_bits(_data_width_));
                 break;
             case SELECTOR_NOT_ENABLE:
                 break;

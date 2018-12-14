@@ -61,6 +61,18 @@ TEST(Test_str_bin, case6) {
     EXPECT_EQ(base::_str_bin(_case2), ~(0b0));
 }
 
+TEST(Test_effective_bits, case7) {
+    unsigned long _data_width1 = 8;
+    unsigned long _data_width2 = 16;
+    unsigned long _data_width3 = 32;
+    unsigned long _data_width4 = 64;
+
+    EXPECT_EQ(base::_effective_bits(_data_width1), 0b11111111);
+    EXPECT_EQ(base::_effective_bits(_data_width2), 0b1111111111111111);
+    EXPECT_EQ(base::_effective_bits(_data_width3), 0b11111111111111111111111111111111);
+    EXPECT_EQ(base::_effective_bits(_data_width4), 0b1111111111111111111111111111111111111111111111111111111111111111);
+}
+
 GTEST_API_ int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

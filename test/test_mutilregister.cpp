@@ -1,54 +1,613 @@
-#include "options.h"
-#include "bus.h"
-#include "mutil_register.h"
-#include "bits.h"
+#include <gtest/gtest.h>
+#include <string>
+#include "base/mutil_register.h"
 
-int main() {
-    unsigned long _data_width = 8;
-    base::BusBase _in_A_(_data_width);
-    base::BusBase _in_B_(_data_width);
-    base::BusBase _out_A_(_data_width);
-    base::BusBase _out_B_(_data_width);
-    base::BusBase _control_(16);
+using std::string;
 
-    _in_A_.named("input_bus_A");
-    _in_B_.named("input_bus_B");
-    _out_A_.named("output_bus_A");
-    _out_B_.named("output_bus_B");
-    _control_.named("control_bus");
+class TestMutilRegister8bits: public testing::Test {
+    public:
+        base::BusBase* _in_A_;
+        base::BusBase* _in_B_;
+        base::BusBase* _out_A_;
+        base::BusBase* _out_B_;
+        base::BusBase* _control_;
+        base::MutilRegisterBase* _reg_;
 
-    unsigned long _active_bits = 0b0000111000000000;
-    base::MutilRegisterBase mreg(&_in_A_, &_in_B_, &_out_A_, &_out_B_, &_control_, 
-                                _data_width, _active_bits);
-    mreg.named("MutilRegisterTest");
+        virtual void SetUp() {
+            unsigned long _data_width = 8;
+            unsigned long _ins_width = 3;
+            _in_A_ = new base::BusBase(_data_width);
+            _in_B_ = new base::BusBase(_data_width);
+            _out_A_ = new base::BusBase(_data_width);
+            _out_B_ = new base::BusBase(_data_width);
+            _control_ = new base::BusBase(_ins_width);
+            _reg_ = new base::MutilRegisterBase(_in_A_, _in_B_, _out_A_, _out_B_, _control_, _data_width, 0b111);
+        }
 
-    unsigned long _input_data = 0b00000011;
-    _in_A_.write(0);
-    _in_B_.write(0);
-    _out_A_.write(0);
-    _out_B_.write(0);
-    _control_.write(0);
+        virtual void TearDown() {
+            delete _in_A_;
+            delete _in_B_;
+            delete _out_A_;
+            delete _out_B_;
+            delete _control_;
+            delete _reg_;
+        }
+};
 
-    //测试从input_bus_A写入数据，再输出到output_bus_A
-    _in_A_.write(_input_data);
-    _control_.write(base::_generate_instruction(MUTIL_REGISTER_READ_A, _active_bits));
-    mreg();
-    cout << "o---------------------------------" << endl;
-    mreg.debug("o---");
-    _in_A_.debug("*---");
-    _in_B_.debug("*---");
-    _out_A_.debug("*---");
-    _out_B_.debug("*---");
-    _control_.debug("*---");
-    cout << "o---------------------------------" << endl;
-    _control_.write(base::_generate_instruction(MUTIL_REGISTER_WRITE_A, _active_bits));
-    mreg();
-    mreg.debug("o---");
-    _in_A_.debug("*---");
-    _in_B_.debug("*---");
-    _out_A_.debug("*---");
-    _out_B_.debug("*---");
-    _control_.debug("*---");
+TEST_F(TestMutilRegister8bits, Test_io_case1) {
+    unsigned long _data1 = 0b10101010;
+    unsigned long _data2 = 0b01010101;
 
-    return 0;
+    _in_A_ -> in(_data1);
+    _in_B_ -> in(_data2);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_READ_A, 0b111));
+    (*_reg_)();
+
+    _in_A_ -> in(0);
+    _in_B_ -> in(0);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_WRITE_A, 0b111));
+    (*_reg_)();
+
+    EXPECT_EQ(_data1, _out_A_ -> out());
+    
+    _in_A_ -> in(_data1);
+    _in_B_ -> in(_data2);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_READ_B, 0b111));
+    (*_reg_)();
+
+    _in_A_ -> in(0);
+    _in_B_ -> in(0);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_WRITE_A, 0b111));
+    (*_reg_)();
+
+    EXPECT_EQ(_data2, _out_A_ -> out());
+    
+    _in_A_ -> in(_data1);
+    _in_B_ -> in(_data2);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_READ_A, 0b111));
+    (*_reg_)();
+
+    _in_A_ -> in(0);
+    _in_B_ -> in(0);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_WRITE_B, 0b111));
+    (*_reg_)();
+
+    EXPECT_EQ(_data1, _out_B_ -> out());
+    
+    _in_A_ -> in(_data1);
+    _in_B_ -> in(_data2);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_READ_B, 0b111));
+    (*_reg_)();
+
+    _in_A_ -> in(0);
+    _in_B_ -> in(0);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_WRITE_B, 0b111));
+    (*_reg_)();
+
+    EXPECT_EQ(_data2, _out_B_ -> out());
+}
+
+TEST_F(TestMutilRegister8bits, Test_io_case2) {
+    unsigned long _data1 = 0b101010101111;
+    unsigned long _data2 = 0b010101011111;
+
+    _in_A_ -> in(_data1);
+    _in_B_ -> in(_data2);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_READ_A, 0b111));
+    (*_reg_)();
+
+    _in_A_ -> in(0);
+    _in_B_ -> in(0);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_WRITE_A, 0b111));
+    (*_reg_)();
+
+    EXPECT_NE(_data1, _out_A_ -> out());
+    
+    _in_A_ -> in(_data1);
+    _in_B_ -> in(_data2);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_READ_B, 0b111));
+    (*_reg_)();
+
+    _in_A_ -> in(0);
+    _in_B_ -> in(0);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_WRITE_A, 0b111));
+    (*_reg_)();
+
+    EXPECT_NE(_data2, _out_A_ -> out());
+    
+    _in_A_ -> in(_data1);
+    _in_B_ -> in(_data2);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_READ_A, 0b111));
+    (*_reg_)();
+
+    _in_A_ -> in(0);
+    _in_B_ -> in(0);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_WRITE_B, 0b111));
+    (*_reg_)();
+
+    EXPECT_NE(_data1, _out_B_ -> out());
+    
+    _in_A_ -> in(_data1);
+    _in_B_ -> in(_data2);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_READ_B, 0b111));
+    (*_reg_)();
+
+    _in_A_ -> in(0);
+    _in_B_ -> in(0);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_WRITE_B, 0b111));
+    (*_reg_)();
+
+    EXPECT_NE(_data2, _out_B_ -> out());
+}
+
+class TestMutilRegister16bits: public testing::Test {
+    public:
+        base::BusBase* _in_A_;
+        base::BusBase* _in_B_;
+        base::BusBase* _out_A_;
+        base::BusBase* _out_B_;
+        base::BusBase* _control_;
+        base::MutilRegisterBase* _reg_;
+
+        virtual void SetUp() {
+            unsigned long _data_width = 16;
+            unsigned long _ins_width = 3;
+            _in_A_ = new base::BusBase(_data_width);
+            _in_B_ = new base::BusBase(_data_width);
+            _out_A_ = new base::BusBase(_data_width);
+            _out_B_ = new base::BusBase(_data_width);
+            _control_ = new base::BusBase(_ins_width);
+            _reg_ = new base::MutilRegisterBase(_in_A_, _in_B_, _out_A_, _out_B_, _control_, _data_width, 0b111);
+        }
+
+        virtual void TearDown() {
+            delete _in_A_;
+            delete _in_B_;
+            delete _out_A_;
+            delete _out_B_;
+            delete _control_;
+            delete _reg_;
+        }
+};
+
+TEST_F(TestMutilRegister16bits, Test_io_case1) {
+    unsigned long _data1 = 0b101010101111;
+    unsigned long _data2 = 0b010101011111;
+
+    _in_A_ -> in(_data1);
+    _in_B_ -> in(_data2);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_READ_A, 0b111));
+    (*_reg_)();
+
+    _in_A_ -> in(0);
+    _in_B_ -> in(0);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_WRITE_A, 0b111));
+    (*_reg_)();
+
+    EXPECT_EQ(_data1, _out_A_ -> out());
+    
+    _in_A_ -> in(_data1);
+    _in_B_ -> in(_data2);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_READ_B, 0b111));
+    (*_reg_)();
+
+    _in_A_ -> in(0);
+    _in_B_ -> in(0);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_WRITE_A, 0b111));
+    (*_reg_)();
+
+    EXPECT_EQ(_data2, _out_A_ -> out());
+    
+    _in_A_ -> in(_data1);
+    _in_B_ -> in(_data2);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_READ_A, 0b111));
+    (*_reg_)();
+
+    _in_A_ -> in(0);
+    _in_B_ -> in(0);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_WRITE_B, 0b111));
+    (*_reg_)();
+
+    EXPECT_EQ(_data1, _out_B_ -> out());
+    
+    _in_A_ -> in(_data1);
+    _in_B_ -> in(_data2);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_READ_B, 0b111));
+    (*_reg_)();
+
+    _in_A_ -> in(0);
+    _in_B_ -> in(0);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_WRITE_B, 0b111));
+    (*_reg_)();
+
+    EXPECT_EQ(_data2, _out_B_ -> out());
+}
+
+TEST_F(TestMutilRegister16bits, Test_io_case2) {
+    unsigned long _data1 = 0b10101010111100001111;
+    unsigned long _data2 = 0b01010101111100001111;
+
+    _in_A_ -> in(_data1);
+    _in_B_ -> in(_data2);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_READ_A, 0b111));
+    (*_reg_)();
+
+    _in_A_ -> in(0);
+    _in_B_ -> in(0);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_WRITE_A, 0b111));
+    (*_reg_)();
+
+    EXPECT_NE(_data1, _out_A_ -> out());
+    
+    _in_A_ -> in(_data1);
+    _in_B_ -> in(_data2);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_READ_B, 0b111));
+    (*_reg_)();
+
+    _in_A_ -> in(0);
+    _in_B_ -> in(0);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_WRITE_A, 0b111));
+    (*_reg_)();
+
+    EXPECT_NE(_data2, _out_A_ -> out());
+    
+    _in_A_ -> in(_data1);
+    _in_B_ -> in(_data2);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_READ_A, 0b111));
+    (*_reg_)();
+
+    _in_A_ -> in(0);
+    _in_B_ -> in(0);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_WRITE_B, 0b111));
+    (*_reg_)();
+
+    EXPECT_NE(_data1, _out_B_ -> out());
+    
+    _in_A_ -> in(_data1);
+    _in_B_ -> in(_data2);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_READ_B, 0b111));
+    (*_reg_)();
+
+    _in_A_ -> in(0);
+    _in_B_ -> in(0);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_WRITE_B, 0b111));
+    (*_reg_)();
+
+    EXPECT_NE(_data2, _out_B_ -> out());
+}
+
+class TestMutilRegister32bits: public testing::Test {
+    public:
+        base::BusBase* _in_A_;
+        base::BusBase* _in_B_;
+        base::BusBase* _out_A_;
+        base::BusBase* _out_B_;
+        base::BusBase* _control_;
+        base::MutilRegisterBase* _reg_;
+
+        virtual void SetUp() {
+            unsigned long _data_width = 32;
+            unsigned long _ins_width = 3;
+            _in_A_ = new base::BusBase(_data_width);
+            _in_B_ = new base::BusBase(_data_width);
+            _out_A_ = new base::BusBase(_data_width);
+            _out_B_ = new base::BusBase(_data_width);
+            _control_ = new base::BusBase(_ins_width);
+            _reg_ = new base::MutilRegisterBase(_in_A_, _in_B_, _out_A_, _out_B_, _control_, _data_width, 0b111);
+        }
+
+        virtual void TearDown() {
+            delete _in_A_;
+            delete _in_B_;
+            delete _out_A_;
+            delete _out_B_;
+            delete _control_;
+            delete _reg_;
+        }
+};
+
+TEST_F(TestMutilRegister32bits, Test_io_case1) {
+    unsigned long _data1 = 0b10101010000011111111000011111111;
+    unsigned long _data2 = 0b01010101000011110101010100011100;
+
+    _in_A_ -> in(_data1);
+    _in_B_ -> in(_data2);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_READ_A, 0b111));
+    (*_reg_)();
+
+    _in_A_ -> in(0);
+    _in_B_ -> in(0);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_WRITE_A, 0b111));
+    (*_reg_)();
+
+    EXPECT_EQ(_data1, _out_A_ -> out());
+    
+    _in_A_ -> in(_data1);
+    _in_B_ -> in(_data2);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_READ_B, 0b111));
+    (*_reg_)();
+
+    _in_A_ -> in(0);
+    _in_B_ -> in(0);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_WRITE_A, 0b111));
+    (*_reg_)();
+
+    EXPECT_EQ(_data2, _out_A_ -> out());
+    
+    _in_A_ -> in(_data1);
+    _in_B_ -> in(_data2);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_READ_A, 0b111));
+    (*_reg_)();
+
+    _in_A_ -> in(0);
+    _in_B_ -> in(0);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_WRITE_B, 0b111));
+    (*_reg_)();
+
+    EXPECT_EQ(_data1, _out_B_ -> out());
+    
+    _in_A_ -> in(_data1);
+    _in_B_ -> in(_data2);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_READ_B, 0b111));
+    (*_reg_)();
+
+    _in_A_ -> in(0);
+    _in_B_ -> in(0);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_WRITE_B, 0b111));
+    (*_reg_)();
+
+    EXPECT_EQ(_data2, _out_B_ -> out());
+}
+
+TEST_F(TestMutilRegister32bits, Test_io_case2) {
+    unsigned long _data1 = 0b10101010111100000111010101010100011;
+    unsigned long _data2 = 0b01010101111100111010101000111001010;
+
+    _in_A_ -> in(_data1);
+    _in_B_ -> in(_data2);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_READ_A, 0b111));
+    (*_reg_)();
+
+    _in_A_ -> in(0);
+    _in_B_ -> in(0);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_WRITE_A, 0b111));
+    (*_reg_)();
+
+    EXPECT_NE(_data1, _out_A_ -> out());
+    
+    _in_A_ -> in(_data1);
+    _in_B_ -> in(_data2);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_READ_B, 0b111));
+    (*_reg_)();
+
+    _in_A_ -> in(0);
+    _in_B_ -> in(0);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_WRITE_A, 0b111));
+    (*_reg_)();
+
+    EXPECT_NE(_data2, _out_A_ -> out());
+    
+    _in_A_ -> in(_data1);
+    _in_B_ -> in(_data2);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_READ_A, 0b111));
+    (*_reg_)();
+
+    _in_A_ -> in(0);
+    _in_B_ -> in(0);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_WRITE_B, 0b111));
+    (*_reg_)();
+
+    EXPECT_NE(_data1, _out_B_ -> out());
+    
+    _in_A_ -> in(_data1);
+    _in_B_ -> in(_data2);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_READ_B, 0b111));
+    (*_reg_)();
+
+    _in_A_ -> in(0);
+    _in_B_ -> in(0);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_WRITE_B, 0b111));
+    (*_reg_)();
+
+    EXPECT_NE(_data2, _out_B_ -> out());
+}
+
+class TestMutilRegister64bits: public testing::Test {
+    public:
+        base::BusBase* _in_A_;
+        base::BusBase* _in_B_;
+        base::BusBase* _out_A_;
+        base::BusBase* _out_B_;
+        base::BusBase* _control_;
+        base::MutilRegisterBase* _reg_;
+
+        virtual void SetUp() {
+            unsigned long _data_width = 64;
+            unsigned long _ins_width = 3;
+            _in_A_ = new base::BusBase(_data_width);
+            _in_B_ = new base::BusBase(_data_width);
+            _out_A_ = new base::BusBase(_data_width);
+            _out_B_ = new base::BusBase(_data_width);
+            _control_ = new base::BusBase(_ins_width);
+            _reg_ = new base::MutilRegisterBase(_in_A_, _in_B_, _out_A_, _out_B_, _control_, _data_width, 0b111);
+        }
+
+        virtual void TearDown() {
+            delete _in_A_;
+            delete _in_B_;
+            delete _out_A_;
+            delete _out_B_;
+            delete _control_;
+            delete _reg_;
+        }
+};
+
+TEST_F(TestMutilRegister64bits, Test_io_case1) {
+    unsigned long _data1 = 0b1010101011100101001010001010000111001001010111111111111111111110;
+    unsigned long _data2 = 0b0101010100000111010101010100011111110101010011001010000111101000;
+
+    _in_A_ -> in(_data1);
+    _in_B_ -> in(_data2);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_READ_A, 0b111));
+    (*_reg_)();
+
+    _in_A_ -> in(0);
+    _in_B_ -> in(0);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_WRITE_A, 0b111));
+    (*_reg_)();
+
+    EXPECT_EQ(_data1, _out_A_ -> out());
+    
+    _in_A_ -> in(_data1);
+    _in_B_ -> in(_data2);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_READ_B, 0b111));
+    (*_reg_)();
+
+    _in_A_ -> in(0);
+    _in_B_ -> in(0);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_WRITE_A, 0b111));
+    (*_reg_)();
+
+    EXPECT_EQ(_data2, _out_A_ -> out());
+    
+    _in_A_ -> in(_data1);
+    _in_B_ -> in(_data2);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_READ_A, 0b111));
+    (*_reg_)();
+
+    _in_A_ -> in(0);
+    _in_B_ -> in(0);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_WRITE_B, 0b111));
+    (*_reg_)();
+
+    EXPECT_EQ(_data1, _out_B_ -> out());
+    
+    _in_A_ -> in(_data1);
+    _in_B_ -> in(_data2);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_READ_B, 0b111));
+    (*_reg_)();
+
+    _in_A_ -> in(0);
+    _in_B_ -> in(0);
+    _out_A_ -> in(0);
+    _out_B_ -> in(0);
+    _control_ -> in(base::_generate_instruction(MUTIL_REGISTER_WRITE_B, 0b111));
+    (*_reg_)();
+
+    EXPECT_EQ(_data2, _out_B_ -> out());
+}
+
+GTEST_API_ int main(int argc, char** argv) {
+    testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }

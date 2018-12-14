@@ -1,48 +1,178 @@
-#include <iostream>
-#include <string>
+#include <gtest/gtest.h>
 #include "memory.h"
-#include "options.h"
 
-using namespace std;
+class TestMemory16bytes_with_1byte_unit:public testing::Test {
+    public:
+        base::BusBase* _in_;
+        base::BusBase* _out_;
+        base::BusBase* _addr_;
+        base::BusBase* _control_;
+        unsigned long _unit_bsize;
+        unsigned long _addr_bits_width;
+        unsigned long _mem_active_bits;
 
-int main() {
-    unsigned long _addr_width = 4;
-    unsigned long _active_bits = 0b11;
-    base::BusBase _in_(DATA_BITS_WIDTH);
-    base::BusBase _out_(DATA_BITS_WIDTH);
-    base::BusBase _control_(2);
-    base::BusBase _addr_(_addr_width);
-    _in_.named("Data_in_bus");
-    _out_.named("Data_out_bus");
-    _control_.named("Control_bus");
-    _addr_.named("Address_bus");
+        base::MemoryBase* _mem_;
 
-    compute::MemoryBase mem(&_in_, &_out_, &_control_, &_addr_, DATA_BITS_WIDTH, _addr_width, _active_bits);
-    mem.named("MemoryTest");
+        virtual void SetUp() {
+            _unit_bsize = 8; //8bits = 1 byte
+            _addr_bits_width = 4; //2 ^ 4 = 16
+            _mem_active_bits = 0b11;
 
-    //_control_.write(MEMORY_WRITE);
-    //_in_.write(0b10101010);
-    //_out_.write(0);
-    //_addr_.write(0b0001);
-    //mem();
-    //mem.debug("write----");
+            _in_ = new base::BusBase(_unit_bsize);
+            _out_ = new base::BusBase(_unit_bsize);
+            _addr_ = new base::BusBase(_addr_bits_width);
+            _control_ = new base::BusBase(base::_active_bits_size(_mem_active_bits));
 
-    //_control_.write(MEMORY_READ);
-    //_in_.write(0);
-    //_out_.write(0);
-    //_addr_.write(0b0001);
-    //mem();
-    //mem.debug("read----");
-    //_out_.debug("output----");
+            _mem_ = new base::MemoryBase(_in_, _out_, _control_, _addr_,
+                                        _unit_bsize, _addr_bits_width, _mem_active_bits);
+        }
 
-    mem.write_in(1, 1);
-    mem.write_in(2, 2);
-    mem.write_in(3, 3);
-    mem.write_in(4, 4);
-    mem.debug(1);
-    mem.debug(2);
-    mem.debug(3);
-    mem.debug(4);
-    
-    return 0;
+        virtual void TearDown() {
+            delete _in_;
+            delete _out_;
+            delete _addr_;
+            delete _control_;
+            delete _mem_;
+        }
+};
+
+TEST_F(TestMemory16bytes_with_1byte_unit, Test_IO) {
+    unsigned long _data1 = 0b10101010;
+    unsigned long _data2 = 0b110101010;
+    unsigned long _addr = 0b1010;
+
+    _in_ -> in(_data1);
+    _out_ -> in(0);
+    _addr_ -> in(_addr);
+    _control_ -> in(base::_generate_instruction(MEMORY_READ, _mem_active_bits));
+    (*_mem_)();
+
+    EXPECT_EQ(_mem_ -> read_from(_addr), _data1);
+
+    _addr_ -> in(_addr);
+    _control_ -> in(base::_generate_instruction(MEMORY_WRITE, _mem_active_bits));
+    (*_mem_)();
+
+    EXPECT_EQ(_out_ -> out(), _mem_ -> read_from(_addr));
+
+    _in_ -> in(_data2);
+    _out_ -> in(0);
+    _addr_ -> in(_addr);
+    _control_ -> in(base::_generate_instruction(MEMORY_READ, _mem_active_bits));
+    (*_mem_)();
+
+    EXPECT_EQ(_mem_ -> read_from(_addr), _data2 & base::_effective_bits(_unit_bsize));
+}
+
+class TestMemory64bytes_with_4byte_unit:public testing::Test {
+    public:
+        base::BusBase* _in_;
+        base::BusBase* _out_;
+        base::BusBase* _addr_;
+        base::BusBase* _control_;
+        unsigned long _unit_bsize;
+        unsigned long _addr_bits_width;
+        unsigned long _mem_active_bits;
+
+        base::MemoryBase* _mem_;
+
+        virtual void SetUp() {
+            _unit_bsize = 64; //8bits = 1 byte
+            _addr_bits_width = 4; //2 ^ 4 = 16
+            _mem_active_bits = 0b11;
+
+            _in_ = new base::BusBase(_unit_bsize);
+            _out_ = new base::BusBase(_unit_bsize);
+            _addr_ = new base::BusBase(_addr_bits_width);
+            _control_ = new base::BusBase(base::_active_bits_size(_mem_active_bits));
+
+            _mem_ = new base::MemoryBase(_in_, _out_, _control_, _addr_,
+                                        _unit_bsize, _addr_bits_width, _mem_active_bits);
+        }
+
+        virtual void TearDown() {
+            delete _in_;
+            delete _out_;
+            delete _addr_;
+            delete _control_;
+            delete _mem_;
+        }
+};
+
+TEST_F(TestMemory64bytes_with_4byte_unit, Test_IO) {
+    unsigned long _data1 = 0b1010101010101010101010101010101010101010101010101010101010101010;
+    unsigned long _addr = 0b1010;
+
+    _in_ -> in(_data1);
+    _out_ -> in(0);
+    _addr_ -> in(_addr);
+    _control_ -> in(base::_generate_instruction(MEMORY_READ, _mem_active_bits));
+    (*_mem_)();
+
+    EXPECT_EQ(_mem_ -> read_from(_addr), _data1);
+
+    _addr_ -> in(_addr);
+    _control_ -> in(base::_generate_instruction(MEMORY_WRITE, _mem_active_bits));
+    (*_mem_)();
+
+    EXPECT_EQ(_out_ -> out(), _mem_ -> read_from(_addr));
+}
+
+class TestMemory32Mbytes_with_1byte_unit:public testing::Test {
+    public:
+        base::BusBase* _in_;
+        base::BusBase* _out_;
+        base::BusBase* _addr_;
+        base::BusBase* _control_;
+        unsigned long _unit_bsize;
+        unsigned long _addr_bits_width;
+        unsigned long _mem_active_bits;
+
+        base::MemoryBase* _mem_;
+
+        virtual void SetUp() {
+            _unit_bsize = 8; //8bits = 1 byte
+            _addr_bits_width = 25; //2 ^ 15 = 32 * 1024 * 1024 = 32M
+            _mem_active_bits = 0b11;
+
+            _in_ = new base::BusBase(_unit_bsize);
+            _out_ = new base::BusBase(_unit_bsize);
+            _addr_ = new base::BusBase(_addr_bits_width);
+            _control_ = new base::BusBase(base::_active_bits_size(_mem_active_bits));
+
+            _mem_ = new base::MemoryBase(_in_, _out_, _control_, _addr_,
+                                        _unit_bsize, _addr_bits_width, _mem_active_bits);
+        }
+
+        virtual void TearDown() {
+            delete _in_;
+            delete _out_;
+            delete _addr_;
+            delete _control_;
+            delete _mem_;
+        }
+};
+
+TEST_F(TestMemory32Mbytes_with_1byte_unit, Test_IO) {
+    unsigned long _data1 = 0b10101010;
+    unsigned long _addr = 0b100000100001000010001001;
+
+    _in_ -> in(_data1);
+    _out_ -> in(0);
+    _addr_ -> in(_addr);
+    _control_ -> in(base::_generate_instruction(MEMORY_READ, _mem_active_bits));
+    (*_mem_)();
+
+    EXPECT_EQ(_mem_ -> read_from(_addr), _data1);
+
+    _addr_ -> in(_addr);
+    _control_ -> in(base::_generate_instruction(MEMORY_WRITE, _mem_active_bits));
+    (*_mem_)();
+
+    EXPECT_EQ(_out_ -> out(), _mem_ -> read_from(_addr));
+}
+
+GTEST_API_ int main(int argc, char** argv) {
+    testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }

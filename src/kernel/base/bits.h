@@ -46,6 +46,8 @@ namespace base {
     //out: _num(unsigned long)
     //_str只读取前64位数据，超过部分会截断
     unsigned long _str_bin(string _str);
+
+    unsigned long _effective_bits(unsigned long _data_width);
 }
 
 #endif

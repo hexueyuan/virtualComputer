@@ -32,10 +32,12 @@ namespace base {
             //输入参数 _in_0_ ~ _in_7_ 输入总线
             //          _out_ 输出总线
             //          _control_ 控制总线
+            //          _d_width_ 数据宽度
             //          _ins_active_bits_ 指令偏移
             SelectorBase(BusBase* _in_0_, BusBase* _in_1_, BusBase* _in_2_, BusBase* _in_3_,
                         BusBase* _in_4_, BusBase* _in_5_, BusBase* _in_6_, BusBase* _in_7_,
-                        BusBase* _out_, BusBase* _control_, unsigned long _ins_active_bits_);
+                        BusBase* _out_, BusBase* _control_, unsigned long _d_width_, 
+                        unsigned long _ins_active_bits_);
             ~SelectorBase();
 
             //选择执行当前控制总线中的指令
@@ -62,6 +64,7 @@ namespace base {
 
             //bitset<SELECTOR_INSTRUCTION_BITS_SIZE> _instruction_;
             unsigned long _instruction_;
+            unsigned long _data_width_;
             unsigned long _instruction_active_bits_;
             string _name_;
     };

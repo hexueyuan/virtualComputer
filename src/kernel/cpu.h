@@ -24,6 +24,10 @@ namespace computer {
             //  SP  堆栈指针
             //  _out_ 输出
             //  _control_ 指令控制总线
+            // _selector_A_active_bits 选择器A有效指令位
+            // _selector_B_active_bits 选择器B有效指令位
+            // _shiftor_active_bits 移位器有效指令位
+            // _data_bits_width 数据宽度
             CPU(base::BusBase* _in_R0_, base::BusBase* _in_R1_, base::BusBase* _in_R2_, base::BusBase* _in_R3_,
                     base::BusBase* _in_IP_, base::BusBase* _in_PC_, base::BusBase* _in_C_, base::BusBase* _in_D_,
                     base::BusBase* _in_MAR_, base::BusBase* _in_MDR_, base::BusBase* _in_PSW_, base::BusBase* _in_SP_,

@@ -2,12 +2,13 @@
 
 namespace base {
     AluBase::AluBase(BusBase* _in_A_, BusBase* _in_B_, BusBase* _out_A_, BusBase* _out_B_, 
-                                                BusBase* _control_, unsigned long _ins_active_bits_) {
+                    BusBase* _control_, unsigned long _d_width, unsigned long _ins_active_bits_) {
         _input_bus_A_ = _in_A_;
         _input_bus_B_ = _in_B_;
         _output_bus_A_ = _out_A_;
         _output_bus_B_ = _out_B_;
         _control_bus_ = _control_;
+        _data_wdith = _d_width;
         _instruction_active_bits_ = _ins_active_bits_;
     }
 
@@ -58,27 +59,42 @@ namespace base {
     }
 
     void AluBase::_ARITHMETIC_ADD() {
-        _output_bus_A_ -> in(_input_bus_A_ -> out() + _input_bus_B_ -> out());
+        unsigned long _eff_bits = base::_effective_bits(_data_wdith);
+        unsigned long _data_A = (_input_bus_A_ -> out() & _eff_bits);
+        unsigned long _data_B = (_input_bus_B_ -> out() & _eff_bits);
+        _output_bus_A_ -> in((_data_A + _data_B) & _eff_bits);
     }
 
     void AluBase::_LOGIC_AND() {
-        _output_bus_A_ -> in(_input_bus_A_ -> out() & _input_bus_B_ -> out());
+        unsigned long _eff_bits = base::_effective_bits(_data_wdith);
+        unsigned long _data_A = (_input_bus_A_ -> out() & _eff_bits);
+        unsigned long _data_B = (_input_bus_B_ -> out() & _eff_bits);
+        _output_bus_A_ -> in((_data_A & _data_B) & _eff_bits);
     }
 
     void AluBase::_LOGIC_OR() {
-        _output_bus_A_ -> in(_input_bus_A_ -> out() | _input_bus_B_ -> out());
+        unsigned long _eff_bits = base::_effective_bits(_data_wdith);
+        unsigned long _data_A = (_input_bus_A_ -> out() & _eff_bits);
+        unsigned long _data_B = (_input_bus_B_ -> out() & _eff_bits);
+        _output_bus_A_ -> in((_data_A | _data_B) & _eff_bits);
     }
 
     void AluBase::_LOGIC_NOT() {
-        _output_bus_A_ -> in(~(_input_bus_A_ -> out()));
+        unsigned long _eff_bits = base::_effective_bits(_data_wdith);
+        unsigned long _data_A = (_input_bus_A_ -> out() & _eff_bits);
+        _output_bus_A_ -> in((~_data_A) & _eff_bits);
     }
 
     void AluBase::_DIRECT_TRANSMISSION() {
-        _output_bus_A_ -> in(_input_bus_A_ -> out());
-        _output_bus_B_ -> in(_input_bus_B_ -> out());
+        unsigned long _eff_bits = base::_effective_bits(_data_wdith);
+        _output_bus_A_ -> in(_input_bus_A_ -> out() & _eff_bits);
+        _output_bus_B_ -> in(_input_bus_B_ -> out() & _eff_bits);
     }
 
     void AluBase::_LOGIC_XOR() {
-        _output_bus_A_ -> in(_input_bus_A_ -> out() ^ _input_bus_B_ -> out());
+        unsigned long _eff_bits = base::_effective_bits(_data_wdith);
+        unsigned long _data_A = (_input_bus_A_ -> out() & _eff_bits);
+        unsigned long _data_B = (_input_bus_B_ -> out() & _eff_bits);
+        _output_bus_A_ -> in((_data_A ^ _data_B) & _eff_bits);
     }
 }
