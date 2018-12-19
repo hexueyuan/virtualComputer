@@ -31,7 +31,7 @@ namespace base {
             //      _ins_active_bits_ 指令有效位
             //ALU与selector串联，数据经选择器连接到ALU，再连接到selector，因为selector由双输入，所以这里ALU双输出
             AluBase(BusBase* _in_A_, BusBase* _in_B_, BusBase* _out_A_, BusBase* _out_B_, 
-                    BusBase* _control_, unsigned long _d_wdith, unsigned long _ins_active_bits_);
+                    BusBase* _control_, unsigned long _d_width, unsigned long _ins_active_bits_);
             ~AluBase();
 
             //执行当前控制总线上的一条指令
@@ -49,7 +49,7 @@ namespace base {
             BusBase* _control_bus_;
 
             unsigned long _instruction_;
-            unsigned long _data_wdith;
+            unsigned long _data_width;
             unsigned long _instruction_active_bits_;
             string _alu_name_;
 
