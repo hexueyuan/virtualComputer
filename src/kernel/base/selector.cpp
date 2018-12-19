@@ -23,7 +23,7 @@ namespace base {
     SelectorBase::~SelectorBase() {}
 
     void SelectorBase::operator()() {
-        _instruction_ = base::_extract_instruction(_control_bus_ -> out(), _instruction_active_bits_);
+        unsigned long _instruction_ = base::_extract_instruction(_control_bus_ -> out(), _instruction_active_bits_);
 
         switch(_instruction_) {
             case SELECTOR_ROUTE_0:
@@ -61,21 +61,21 @@ namespace base {
         _name_ = _name;
     }
 
-    void SelectorBase::debug(string tab) {
-        string space(tab.length(), ' ');
+    void SelectorBase::debug(string prefix) {
+        string space(prefix.length(), ' ');
         unsigned long _instruction = base::_extract_instruction(_control_bus_ -> out(), _instruction_active_bits_);
-        cout << tab << "Selector(" + _name_ + ") instruction: " << \
+        cout << prefix << "Selector(" + _name_ + ") instruction: " << \
             base::_bin_str(_instruction, base::_active_bits_size(_instruction_active_bits_)) << endl;
-        cout << space << "Selector(" + _name_ + ") control bus: " << _control_bus_ -> name() << endl;
-        cout << space << "Selector(" + _name_ + ") route 0: " << _input_bus_0_ -> name() << endl;
-        cout << space << "Selector(" + _name_ + ") route 1: " << _input_bus_1_ -> name() << endl;
-        cout << space << "Selector(" + _name_ + ") route 2: " << _input_bus_2_ -> name() << endl;
-        cout << space << "Selector(" + _name_ + ") route 3: " << _input_bus_3_ -> name() << endl;
-        cout << space << "Selector(" + _name_ + ") route 4: " << _input_bus_4_ -> name() << endl;
-        cout << space << "Selector(" + _name_ + ") route 5: " << _input_bus_5_ -> name() << endl;
-        cout << space << "Selector(" + _name_ + ") route 6: " << _input_bus_6_ -> name() << endl;
-        cout << space << "Selector(" + _name_ + ") route 7: " << _input_bus_7_ -> name() << endl;
-        cout << tab << "Selector(" + _name_ + ") output: " << _output_bus_ -> name() << endl;
+        //cout << space << "Selector(" + _name_ + ") control bus: " << _control_bus_ -> name() << endl;
+        //cout << space << "Selector(" + _name_ + ") route 0: " << _input_bus_0_ -> name() << endl;
+        //cout << space << "Selector(" + _name_ + ") route 1: " << _input_bus_1_ -> name() << endl;
+        //cout << space << "Selector(" + _name_ + ") route 2: " << _input_bus_2_ -> name() << endl;
+        //cout << space << "Selector(" + _name_ + ") route 3: " << _input_bus_3_ -> name() << endl;
+        //cout << space << "Selector(" + _name_ + ") route 4: " << _input_bus_4_ -> name() << endl;
+        //cout << space << "Selector(" + _name_ + ") route 5: " << _input_bus_5_ -> name() << endl;
+        //cout << space << "Selector(" + _name_ + ") route 6: " << _input_bus_6_ -> name() << endl;
+        //cout << space << "Selector(" + _name_ + ") route 7: " << _input_bus_7_ -> name() << endl;
+        //cout << prefix << "Selector(" + _name_ + ") output: " << _output_bus_ -> name() << endl;
     }
 
     string SelectorBase::name() {

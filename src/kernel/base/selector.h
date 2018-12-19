@@ -46,7 +46,7 @@ namespace base {
             //选择器命名
             void named(string _name);
             //调试信息
-            void debug(string tab);
+            void debug(string prefix="");
             //返回命名
             string name();
 
@@ -62,8 +62,6 @@ namespace base {
             BusBase* _output_bus_;
             BusBase* _control_bus_;
 
-            //bitset<SELECTOR_INSTRUCTION_BITS_SIZE> _instruction_;
-            unsigned long _instruction_;
             unsigned long _data_width_;
             unsigned long _instruction_active_bits_;
             string _name_;
