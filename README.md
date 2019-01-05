@@ -100,8 +100,8 @@ make
 - [x] 单I/O端口寄存器类[kernel/base/register.h](src/kernel/base/register.h) [说明文档](document/Register.md)
 - [x] 双I/O端口寄存器类[kernel/base/mutil_register.h](src/kernel/base/mutil_register.h) [说明文档](document/Mutil_register.md)
 - [x] 八端口选择器类[kernel/base/selector.h](src/kernel/base/selector.h) [说明文档](document/Selector.md)
-- [ ] 运算器ALU类[kernel/base/alu.h](src/kernel/base/alu.h) [说明文档](.)
-- [ ] 移位器类[kernel/base/shiftor.h](src/kernel/base/shiftor.h) [说明文档](.)
+- [x] 运算器ALU类[kernel/base/alu.h](src/kernel/base/alu.h) [说明文档](.)
+- [x] 移位器类[kernel/base/shiftor.h](src/kernel/base/shiftor.h) [说明文档](.)
 - [ ] Memory存储器类[kernel/memory.h](src/kernel.h) [说明文档](.)
 
 ## computer命名空间组件
