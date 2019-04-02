@@ -1,5 +1,5 @@
 # Register.h 寄存器类
-```C++
+```
 class RegisterBase {
     public:
         RegisterBase(BusBase* _in_, BusBase* _out_, BusBase* _control_, 
@@ -26,13 +26,13 @@ class RegisterBase {
 ---  
 
 ## 控制指令
-基础寄存器类控制指令工两位，控制读写状态以及sleep状态
-```C
+基础寄存器类控制指令工两位，控制读写状态以及sleep状态  
+```
 #define REGISTER_NOT_ENABLE     0b00    //sleep状态，寄存器不执行任何指令
 #define REGISTER_CONTAIN        0b01    //保留
 #define REGISTER_WRITE          0b10    //向输出总线写数据
 #define REGISTER_READ           0b11    //从输入总线读数据
-```
+```  
 ---
 ## 构造函数
 
