@@ -84,11 +84,9 @@ make
 # 待完成  
 
 - [ ] 组件类的说明文档
-- [ ] 微指令生成器部分细节未按照实际物理结构实现，实现优化
 - [x] 单元测试
-- [ ] 更丰富的指令集
-- [ ] 更完善的汇编工具
-- [ ] 考虑如何更接近实现模拟的时钟信号控制指令执行  
+- [ ] 考虑扩展性
+
 
 # 说明文档
 基础类在命名空间base下定义，逻辑类在命名空间computer下定义。  
@@ -102,7 +100,7 @@ make
 - [x] 八端口选择器类[kernel/base/selector.h](src/kernel/base/selector.h) [说明文档](document/Selector.md)
 - [x] 运算器ALU类[kernel/base/alu.h](src/kernel/base/alu.h) [说明文档](.)
 - [x] 移位器类[kernel/base/shiftor.h](src/kernel/base/shiftor.h) [说明文档](.)
-- [ ] Memory存储器类[kernel/memory.h](src/kernel.h) [说明文档](.)
+- [x] Memory存储器类[kernel/memory.h](src/kernel.h) [说明文档](.)
 
 ## computer命名空间组件
 
